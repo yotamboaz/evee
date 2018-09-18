@@ -30,11 +30,18 @@ export default class Categories extends React.Component {
 
         return (
             <View style={{justifyContent:'flex-start',}}>
+                {/* <Picker onValueChange={this._on_category_changed}
+                        selectedValue={this.state.selected_category} >
+                    {categories}
+                </Picker> */}
                 <Dropdown label='Category'
                           data={categories}
                           onChangeText={this._on_category_changed}
                           containerStyle={styles.CategoryPicker} />
-                
+                {/* <Picker onValueChange={this._on_sub_category_changed} 
+                        selectedValue={this.state.selected_sub_category} >
+                    {sub_categories}
+                </Picker> */}
                 <Dropdown label='Sub-category'
                           data={sub_categories}
                           onChangeText={this._on_sub_category_changed}

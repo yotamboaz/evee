@@ -9,7 +9,6 @@ import { TextField } from 'react-native-material-textfield';
 import DataMark from './DataMark';
 import * as utils from '../utils/utils';
 
-
 const FormField = (props) => {
     console.log(props)
     var field = null;

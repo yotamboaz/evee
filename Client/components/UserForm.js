@@ -68,7 +68,24 @@ export default class UserForm extends React.Component {
                 ]
             }
         ]
-
+        // const form_objects = [{
+        //                     category: 'Sports',
+        //                     sub_category: 'Tennis',
+        //                     fields: [
+        //                         {
+        //                             name: 'Type of court',
+        //                             description: 'Specify the court conditions',
+        //                             type: 'combo_box',
+        //                             box_strings: ['Grass', 'Concrete']
+        //                         },
+        //                         {
+        //                             name: 'Check text boxes',
+        //                             description: 'Enter number',
+        //                             min_value: 0,
+        //                             type: 'number',
+        //                         },
+        //                     ]
+        //                  },]
         let categories = utils.collect_categories(form_objects);
         this.state = {
             form_objects: form_objects,
@@ -555,31 +572,6 @@ export default class UserForm extends React.Component {
             form['fields'][key]=fields[key];
         }
         console.log(form)
-        let sent_form = self._send_form(form)
-    }
-
-    _send_form = (form) => {
-        ip_address = 'server address for posting a new event'
-        return fetch(ip_address,
-            {
-                method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    content: form,
-                }),
-            })
-        .then(response => response.json())
-        .then(server_response => {
-            if(server_response.response == false){
-                console.log(utils.string_format('Failed to send form\nerrors - {0}', response.error));
-                Alert.alert('Failed to upload the event. please try again');
-                return false
-            }
-            return true;
-        })
-        .catch(error => {console.log(error); Alert.alert('Operation failed'); return false});
+        //utils.send_form(form)
     }
 }
