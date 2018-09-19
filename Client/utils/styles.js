@@ -11,6 +11,11 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#E2FCFF',
     },
+    loginPage: {
+        flexDirection: 'column',
+        padding: 10,
+        justifyContent: 'space-between'
+    },
     insertNameLine: {
         flexDirection: 'row',
         padding: 10,

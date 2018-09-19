@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Button, Text, InteractionManager, Platform } from 'react-native';
+import { View, Button, Text, InteractionManager, Platform, Alert } from 'react-native';
 import { MapView } from 'expo';
 
 import Event from './Event';
 import * as location_utils from '../utils/location';
 import * as utils from '../utils/utils';
+import { events as events_server_api } from '../utils/Server_api';
 
 export default class EventsBoard extends React.Component{
     constructor(props){
@@ -14,7 +15,7 @@ export default class EventsBoard extends React.Component{
             id: props.id,
 
             // public events
-            events: props.events,
+            events: [],
 
             // event kind is board/map according to user page. board = map, than kind='map'...
             event_kind: props.event_kind,
@@ -22,11 +23,58 @@ export default class EventsBoard extends React.Component{
             // the event user chosed (relevant only for map view)
             chosed_event: null,
 
+            // flag to indicate if should fetch events again from the server
+            load_events: true
+
             // filter options - the filters the user chose (could be another component, and sit in its state)
             // if filter options will be a component, than this class is stateless //
         }
 
 
+    }
+
+    componentDidMount(){
+        if(!this.state.load_events){
+            return
+        }
+        let tries = 0;
+        var events = null;
+        while(!events && tries < 3){
+            events = fetch(events_server_api)
+                 .then(response => response.json())
+                 .then(server_response => {
+                     if(server_response.status == 'success' || true){
+                         events = server_response;
+                         //should be:
+                         // events = server_response.events
+                     }
+                     else{
+                        Alert.alert(error);
+                        tries = 3;
+                     }
+                 })
+                 .catch(error => {
+                     console.log(error);
+                     if(tries >= 2){
+                         Alert.alert('Could not fetch events from the server, pleae try again');
+                     }
+                 })
+            tries = tries + 1;
+        }
+
+        //filter the events
+        // events = this.filter_events(events)
+
+        this.setState(prev_state => {
+            return {
+                id: prev_state.id,
+                events: events,
+                event_kind: prev_state.event_kind,
+                chosed_event: prev_state.chosed_event,
+                load_events: false
+            }
+        })
+        
     }
 
     render(){
@@ -89,6 +137,7 @@ export default class EventsBoard extends React.Component{
                     events: prev_state.events,
                     event_kind: prev_state.event_kind,
                     chosed_event: chosed_event,
+                    load_events: prev_state.load_events
                     //filter
                 }
             })
@@ -102,6 +151,7 @@ export default class EventsBoard extends React.Component{
                     events: prev_state.events,
                     event_kind: prev_state.event_kind,
                     chosed_event: null,
+                    load_events: prev_state.load_events
                     //filter
                 }
             })
