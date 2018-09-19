@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { StackNavigator, DrawerNavigator } from 'react-navigation';
+import { StackNavigator, DrawerNavigator, createStackNavigator, createDrawerNavigator } from 'react-navigation';
 import { View, ActivityIndicator, Button, ListView, Text, Alert, StyleSheet, TouchableHighlight } from 'react-native';
 import FontAwesome, { Icons } from 'react-native-fontawesome';
 import Hamburger1 from './hamburger1';
@@ -11,7 +11,7 @@ import'./App';
 var serverConnection;
 //var ipAddress = 'http://192.168.1.16:8080/firstwebapp/webapi/events';
 //var ipAddress = 'http://vmedu158.mtacloud.co.il:8080/firstwebapp/webapi/events';
-var ipAddress = 'http://vmedu158.mtacloud.co.il:8080/firstwebapp_19-8-18/webapi/events';
+var ipAddress = 'http://vmedu158.mtacloud.co.il:8080/evee/webapi/events';
 
 export default class EventsBoard extends Component {
 
@@ -294,7 +294,7 @@ class MyNotificationsScreen extends React.Component {
 	}
 }
 
-const MyApp = DrawerNavigator({
+const MyApp = createDrawerNavigator({
 	Home: {
 	  screen: EventsBoard,
 	},
