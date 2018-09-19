@@ -2,7 +2,7 @@ import React from 'react';
 import { Alert, Platform } from 'react-native';
 
 import * as utils from './utils';
-import * as google_api_keys from './API_keys/Google_api';
+import * as google_api_keys from './API_key/Google_api';
 
 export function get_current_location(){
     return navigator.geolocation.getCurrentPosition((location)=>{
