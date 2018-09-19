@@ -41,7 +41,7 @@ export default class Login extends Component{
                 <Loading loading={this.state.is_loading} />
 
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                    <View style={styles.insertNameLine}>
+                    <View style={styles.loginPage}>
 
                         <TextButton onPress={this.facebook_login}
                             title='Facebook'
