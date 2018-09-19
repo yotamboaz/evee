@@ -1,12 +1,11 @@
 import React from 'react';
-import { View, FlatList, Button, Text, Platform, Alert } from 'react-native';
+import { View, Button, Text, InteractionManager, Platform, Alert } from 'react-native';
 import { MapView } from 'expo';
 
 import Event from './Event';
 import * as location_utils from '../utils/location';
 import * as utils from '../utils/utils';
 import { events as events_server_api } from '../utils/Server_api';
-
 
 export default class EventsBoard extends React.Component{
     constructor(props){
@@ -27,6 +26,9 @@ export default class EventsBoard extends React.Component{
             // flag to indicate if should fetch events again from the server
             load_events: true,
 
+            // flag to indicate if should fetch events again from the server
+            load_events: true
+
             // filter options - the filters the user chose (could be another component, and sit in its state)
             // if filter options will be a component, than this class is stateless //
         }
@@ -34,17 +36,20 @@ export default class EventsBoard extends React.Component{
 
     }
 
-    fetch_events = async () => {
+    componentDidMount(){
+        if(!this.state.load_events){
+            return
+        }
         let tries = 0;
         var events = null;
         while(!events && tries < 3){
-            events = await fetch(events_server_api)
+            events = fetch(events_server_api)
                  .then(response => response.json())
                  .then(server_response => {
                      if(server_response.status == 'success' || true){
-                         return server_response;
+                         events = server_response;
                          //should be:
-                         // return server_response.events
+                         // events = server_response.events
                      }
                      else{
                         Alert.alert(error);
@@ -59,24 +64,8 @@ export default class EventsBoard extends React.Component{
                  })
             tries = tries + 1;
         }
-        console.log(events)
-        return events
-    }
 
-    async componentDidMount(){
-        if(!this.state.load_events){
-            return
-        }
-        
-       events = await this.fetch_events()
-
-        // filter the events \\
-        //============================= READ THIS BEFORE WORKING ON FILTER ==========================\\
-        // need to think if filttering process should be here,                                       \\
-        // because user might change filter options, and refetching                                  \\
-        // events each time user change filter is not scalable, and not officiant.                   \\
-        // maybe add filtered_events to state, and present them if user chosed filter options.       \\
-        //===========================================================================================\\
+        //filter the events
         // events = this.filter_events(events)
 
         this.setState(prev_state => {
@@ -84,8 +73,8 @@ export default class EventsBoard extends React.Component{
                 id: prev_state.id,
                 events: events,
                 event_kind: prev_state.event_kind,
-                chosed_event: null,
-                load_events: false,
+                chosed_event: prev_state.chosed_event,
+                load_events: false
             }
         })
         
@@ -170,7 +159,8 @@ export default class EventsBoard extends React.Component{
                     events: prev_state.events,
                     event_kind: prev_state.event_kind,
                     chosed_event: chosed_event,
-                    load_events: prev_state.load_events,
+                    load_events: prev_state.load_events
+                    //filter
                 }
             })
         }
