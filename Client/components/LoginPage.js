@@ -4,6 +4,7 @@ import { AsyncStorage, ActivityIndicator, View, Text, Alert, Modal } from 'react
 import Loading from '../components/Loading';
 import * as utils from '../utils/utils';
 import * as storage_utils from '../utils/DataStorage';
+import { users as user_api } from '../utils/Server_api';
 
 // Facebook api refrence - https://github.com/facebook/react-native-fbsdk
 //                         https://docs.expo.io/versions/latest/sdk/facebook
@@ -116,6 +117,7 @@ export default class LoginPage extends React.Component{
         }
 
         // login succeeded and load details into the machine
+        // initiate loading state until saving user on server + device finish
         this.setState(prev_state => {
             return {
                 user_name: prev_state.user_name,
@@ -124,14 +126,15 @@ export default class LoginPage extends React.Component{
                 is_loading: true
             }
         })
+
+        var user = {name: String(details.name), email: String(details.email)}
         
         //fetch id from our server
-        var id = 1;
-
+        var id = await this._pull_user_from_server(user)
+        user['id'] = String(id);
+        
         //save the data on the device
-        var user = {name: String(details.name), id: String(id), email: String(details.email)}
         saving_result = await this._save_user(user);
-        console.log(saving_result)
 
         this.setState(prev_state => {
             return {
@@ -164,13 +167,14 @@ export default class LoginPage extends React.Component{
             }
         })
 
+        var user = {name: String(details.name), email: String(details.email)}
+        
         //fetch id from our server
-        var id = 1;
+        var id = await this._pull_user_from_server(user)
+        user['id'] = String(id);
 
         //save the data on the device
-        var user = await {name: String(details.name), id: String(id), email: String(details.email)}
         saving_result = await this._save_user(user);
-        console.log(saving_result)
 
         this.setState(prev_state => {
             return {
@@ -192,6 +196,43 @@ export default class LoginPage extends React.Component{
             }
         })
         await this._delete_user()
+    }
+
+    _pull_user_from_server = async (user) => {
+        let tries = 0
+        let id = false
+        while(!id && tries < 5){
+            id = await fetch(user_api,
+                        {
+                            method: 'POST',
+                            headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(user)
+                        })
+                 .then(response => response.json())
+                 .then(server_response => {
+                        console.log(server_response)
+                        if(server_response.status=='success' || true){
+                            return String(server_response.userid);
+                        }
+                        else{
+                            tries = 5
+                            Alert.alert(server_response.error);
+                            return null;
+                        }
+                 })
+                 .catch(error => {
+                    console.log(error)
+                    if(tries >= 4){
+                        Alert.alert('Could not connect with the server, please try agin')
+                    }
+                    return null;
+                 });
+            tries = tries + 1;    
+        }
+        return id;
     }
 
     _save_user = async (user) => {
