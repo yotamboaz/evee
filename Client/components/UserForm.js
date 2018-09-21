@@ -13,83 +13,15 @@ import FormField from './FormField';
 import DatePicker from './DatePicker';
 import * as utils from '../utils/utils';
 import * as location_utils from '../utils/location';
+import { formats as formats_api, events as events_api } from '../utils/Server_api';
 
 export default class UserForm extends React.Component {
     constructor(props){
         super(props);
-        
-        // Connect to Db and pull forms
-        // var form_objects;
-        // const categories =  fetch('http://vmedu158.mtacloud.co.il:8080/firstwebapp_19-8-18/webapi/formats')
-        //                      .then(response => response.json())
-        //                      .then(forms => {
-        //                          console.log(forms)
-        //                          form_objects = forms;
-        //                          return utils.collect_categories(form_objects);
-        //                      })
-        //                      .catch(error => {
-        //                          Alert.alert('could not fetch specific events forms from the server. please try again later...');
-        //                          console.log(error);
-        //                      })
-        
-        const form_objects = [
-            {
-                "category": "Sports & Fitness",
-                "subCategory": "Ball Games",
-                "fields":
-                [
-                    {
-                        "name": "Number of participants",
-                        "description": null,
-                        "type": "integer",
-                        "minValue": 1,
-                        "maxValue": null,
-                        "defaultValue": 1,
-                        "comboboxOptions": null
-                    },
-                    {
-                        "name": "Type of field",
-                        "description": null,
-                        "type": "combo-box",
-                        "minValue": null,
-                        "maxValue": null,
-                        "defaultValue": "Outdoor, grass",
-                        "comboboxOptions": ["Outdoor, grass", "Outdoor, asphalt", "Indoor"]
-                    },
-                    {
-                        "name": "Required accessories/equipment",
-                        "description": "Such as net, bats, ball etc.",
-                        "type": "string",
-                        "minValue": null,
-                        "maxValue": null,
-                        "defaultValue": null,
-                        "comboboxOptions": null
-                    }
-                ]
-            }
-        ]
-        // const form_objects = [{
-        //                     category: 'Sports',
-        //                     sub_category: 'Tennis',
-        //                     fields: [
-        //                         {
-        //                             name: 'Type of court',
-        //                             description: 'Specify the court conditions',
-        //                             type: 'combo_box',
-        //                             box_strings: ['Grass', 'Concrete']
-        //                         },
-        //                         {
-        //                             name: 'Check text boxes',
-        //                             description: 'Enter number',
-        //                             min_value: 0,
-        //                             type: 'number',
-        //                         },
-        //                     ]
-        //                  },]
-        let categories = utils.collect_categories(form_objects);
         this.state = {
-            form_objects: form_objects,
-            categories: categories,
+            user_id: props.id,
+            form_objects: [],
+            categories: {},
             selected_category: 'Default',
             selected_sub_category: 'Default',
             event_name: null,
@@ -100,8 +32,73 @@ export default class UserForm extends React.Component {
             current_form: {category: null, sub_category: null},
             field_values: {},
             invalid_fields: {},
-            registered_fields: ['Event Name']
+            registered_fields: ['Event Name'],
+            pull_forms: true
         }
+    }
+
+    async componentDidMount(){
+        var form_objects = null;
+        if(this.state.pull_forms){
+            form_objects = await this._pull_forms();
+        }
+        else{
+            form_objects = this.state.form_objects;
+        }
+
+        if(!form_objects){
+            return;
+        }
+        var categories = utils.collect_categories(form_objects);
+
+        this.setState(prev_state => {
+            return {
+                user_id: prev_state.user_id,
+                form_objects: form_objects,
+                categories: categories,
+                selected_category: prev_state.selected_category,
+                selected_sub_category: prev_state.selected_sub_category,
+                event_name: prev_state.event_name,
+                show_date: prev_state.show_date,
+                date: prev_state.date,
+                location: prev_state.location,
+                additional_data: prev_state.additional_data,
+                current_form: prev_state.current_form,
+                field_values: prev_state.field_values,
+                invalid_fields: prev_state.invalid_fields,
+                registered_fields: prev_state.registered_fields,
+                pull_forms: false
+            }
+        })
+    }
+
+    _pull_forms = async () => {
+        let tries = 0;
+        var forms = null;
+        while(!forms && tries < 5){
+            forms = await fetch(formats_api)
+                    .then(response => response.json())
+                    .then(server_response => {
+                        if(server_response.status == 'success' || true){
+                            console.log(server_response);
+                            return server_response;
+                            // should be:
+                            // return server_response.forms
+                        }
+                        else{
+                            tries = 5;
+                            Alert.alert(server_Response.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        if(tries >= 4){
+                            Alert.alert('could not fetch specific events forms from the server. please try again later...');
+                        }
+                    })
+            tries = tries + 1;
+        }
+        return forms;
     }
 
     render() {
@@ -110,8 +107,6 @@ export default class UserForm extends React.Component {
         var form_fields = this._get_form_fields()
         var marker = this._get_marker(this.state.location)
 
-        console.log(this.state);
-        console.log(this.state.location)
         return(
             //contentContainerStyle={{flex: 1}}
             <ScrollView style={{flexDirection: 'column'}} contentContainerStyle={{flex: 1}} >
@@ -150,7 +145,10 @@ export default class UserForm extends React.Component {
                             show_date={this.state.show_date}
                             confirm_date={this.confirm_date}
                             cancel_date={this.cancel_date} />
-                {this.state.field_values.hasOwnProperty('date') && <Text>{JSON.stringify(this.state.field_values['date'])}</Text>}
+                {this.state.date!=null && (<View>
+                                           <Text>{this.state.date.date}</Text>
+                                           <Text>{this.state.date.time}</Text>
+                                           </View>)}
                 <Button title='Submit' onPress={this.submit_form} />
             </ScrollView>
         );
@@ -200,6 +198,7 @@ export default class UserForm extends React.Component {
     on_category_changed = (category) => {
         this.setState(prev_state => {
             return {
+            user_id: prev_state.user_id,
             form_objects: prev_state.form_objects,
             categories: prev_state.categories,
             selected_category: category,
@@ -212,7 +211,8 @@ export default class UserForm extends React.Component {
             current_form: {category: null, sub_category: null},
             field_values: {},
             invalid_fields: prev_state.invalid_fields,
-            registered_fields: prev_state.registered_fields
+            registered_fields: prev_state.registered_fields,
+            pull_forms: prev_state.pull_forms
             }
         })
     }
@@ -237,6 +237,7 @@ export default class UserForm extends React.Component {
         })
         this.setState(prev_state => {
             return {
+                user_id: prev_state.user_id,
                 form_objects: prev_state.form_objects,
                 categories: prev_state.categories,
                 selected_category: category,
@@ -250,13 +251,13 @@ export default class UserForm extends React.Component {
                 // Changed dynamic form, thus emptying the current one
                 field_values: {},
                 invalid_fields: prev_state.invalid_fields,
-                registered_fields: registered_fields
+                registered_fields: registered_fields,
+                pull_forms: prev_state.pull_forms
                 }
         })
     }
 
     on_form_field_changed = (field_name, field_value) =>{
-        console.log(field_value)
         var field_values = this.state.field_values;
         field_values[field_name] = field_value;
 
@@ -265,6 +266,7 @@ export default class UserForm extends React.Component {
 
         this.setState(prev_state => {
             return {
+                user_id: prev_state.user_id,
                 form_objects: prev_state.form_objects,
                 categories: prev_state.categories,
                 selected_category: prev_state.selected_category,
@@ -278,29 +280,34 @@ export default class UserForm extends React.Component {
                 field_values: field_values,
                 invalid_fields: prev_state.invalid_fields,
                 // Value was picked for a field, thus change required.
-                registered_fields: registered_fields
+                registered_fields: registered_fields,
+                pull_forms: prev_state.pull_forms
             }
         })
-        console.log(this.state.field_values);
     }
 
     confirm_date = (date_value) => {
-        this.on_form_field_changed('date', date_value)
+        var date = {}
+        date['date'] = date_value.toDateString();
+        date['time'] = utils.string_format('{0}:{1}', date_value.getHours(), date_value.getMinutes());
+
         this.setState(prev_state => {
             return {
+                user_id: prev_state.user_id,
                 form_objects: prev_state.form_objects,
                 categories: prev_state.categories,
                 selected_category: prev_state.selected_category,
                 selected_sub_category: prev_state.selected_sub_category,
                 event_name: prev_state.event_name,
                 show_date: false,
-                date: date_value,
+                date: date,
                 location: prev_state.location,
                 additional_data: prev_state.additional_data,
                 current_form: prev_state.current_form,
                 field_values: prev_state.field_values,
                 invalid_fields: prev_state.invalid_fields,
-                registered_fields: prev_state.registered_fields
+                registered_fields: prev_state.registered_fields,
+                pull_forms: prev_state.pull_forms
             }
         })
     }
@@ -308,6 +315,7 @@ export default class UserForm extends React.Component {
     cancel_date = (_) => {
         this.setState(prev_state => {
             return {
+                user_id: prev_state.user_id,
                 form_objects: prev_state.form_objects,
                 categories: prev_state.categories,
                 selected_category: prev_state.selected_category,
@@ -320,7 +328,8 @@ export default class UserForm extends React.Component {
                 current_form: prev_state.current_form,
                 field_values: prev_state.field_values,
                 invalid_fields: prev_state.invalid_fields,
-                registered_fields: prev_state.registered_fields
+                registered_fields: prev_state.registered_fields,
+                pull_forms: prev_state.pull_forms
             }
         })
     }
@@ -329,6 +338,7 @@ export default class UserForm extends React.Component {
         this.setState(prev_state => {
             let show_date = !prev_state.show_date;
             return {
+                user_id: prev_state.user_id,
                 form_objects: prev_state.form_objects,
                 categories: prev_state.categories,
                 selected_category: prev_state.selected_category,
@@ -341,7 +351,8 @@ export default class UserForm extends React.Component {
                 current_form: prev_state.current_form,
                 field_values: prev_state.field_values,
                 invalid_fields: prev_state.invalid_fields,
-                registered_fields: prev_state.registered_fields
+                registered_fields: prev_state.registered_fields,
+                pull_forms: prev_state.pull_forms
             }
         })
     }
@@ -361,6 +372,7 @@ export default class UserForm extends React.Component {
 
                             this.setState(prev_state => {
                                 return {
+                                    user_id: prev_state.user_id,
                                     form_objects: prev_state.form_objects,
                                     categories: prev_state.categories,
                                     selected_category: prev_state.selected_category,
@@ -376,7 +388,8 @@ export default class UserForm extends React.Component {
                                     current_form: prev_state.current_form,
                                     field_values: field_values,
                                     invalid_fields: prev_state.invalid_fields,
-                                    registered_fields: prev_state.registered_fields
+                                    registered_fields: prev_state.registered_fields,
+                                    pull_forms: prev_state.pull_forms
                                 }
                             })
                         })
@@ -400,6 +413,7 @@ export default class UserForm extends React.Component {
 
                         this.setState(prev_state => {
                             return {
+                                user_id: prev_state.user_id,
                                 form_objects: prev_state.form_objects,
                                 categories: prev_state.categories,
                                 selected_category: prev_state.selected_category,
@@ -414,7 +428,8 @@ export default class UserForm extends React.Component {
                                 current_form: prev_state.current_form,
                                 field_values: prev_state.field_values,
                                 invalid_fields: prev_state.invalid_fields,
-                                registered_fields: prev_state.registered_fields
+                                registered_fields: prev_state.registered_fields,
+                                pull_forms: prev_state.pull_forms
                             }
                         })
                     })
@@ -425,6 +440,7 @@ export default class UserForm extends React.Component {
             var invalid_fields = prev_state.invalid_fields
             invalid_fields[field_name] = error_msg
             return {
+                user_id: prev_state.user_id,
                 form_objects: prev_state.form_objects,
                 categories: prev_state.categories,
                 selected_category: prev_state.selected_category,
@@ -436,7 +452,8 @@ export default class UserForm extends React.Component {
                 additional_data: prev_state.additional_data,
                 current_form: prev_state.current_form,
                 invalid_fields: prev_state.invalid_fields,
-                registered_fields: prev_state.registered_fields
+                registered_fields: prev_state.registered_fields,
+                pull_forms: prev_state.pull_forms
             }
         })
     }
@@ -451,6 +468,7 @@ export default class UserForm extends React.Component {
             // let invalid_fields = prev_state.invalid_fields
             // delete invalid_fields[field_name]
             return {
+                user_id: prev_state.user_id,
                 form_objects: prev_state.form_objects,
                 categories: prev_state.categories,
                 selected_category: prev_state.selected_category,
@@ -463,7 +481,8 @@ export default class UserForm extends React.Component {
                 current_form: prev_state.current_form,
                 field_values: prev_state.field_values,
                 invalid_fields: prev_state.invalid_fields,
-                registered_fields: prev_state.registered_fields
+                registered_fields: prev_state.registered_fields,
+                pull_forms: prev_state.pull_forms
             }
         })
     }
@@ -474,6 +493,7 @@ export default class UserForm extends React.Component {
 
         this.setState(prev_state => {
             return {
+                user_id: prev_state.user_id,
                 form_objects: prev_state.form_objects,
                 categories: prev_state.categories,
                 selected_category: prev_state.selected_category,
@@ -486,7 +506,8 @@ export default class UserForm extends React.Component {
                 current_form: prev_state.current_form,
                 field_values: prev_state.field_values,
                 invalid_fields: prev_state.invalid_fields,
-                registered_fields: registered_fields
+                registered_fields: registered_fields,
+                pull_forms: prev_state.pull_forms
             }
         })
     }
@@ -526,7 +547,7 @@ export default class UserForm extends React.Component {
         return [false, alerts]
     }
 
-    submit_form = () => {
+    submit_form = async () => {
         // Submit the form.
         // submitting all form fields, and adding to the form:
         // categories, location, date(to help access in filter methods)
@@ -562,16 +583,68 @@ export default class UserForm extends React.Component {
         // passed validations
         var fields = this.state.field_values;
         var form = {};
+        form['user_id'] = this.state.user_id
         form['category'] = this.state.selected_category ? this.state.selected_category : 'Default'
         form['sub_category'] = this.state.selected_sub_category ? this.state.selected_sub_category : 'Default'
         form['location'] = this.state.location;
-        form['date'] = this.state.date;
+        form['date'] = this.state.date.date;
+        form['time'] = this.state.date.time;
         form['name'] = this.state.field_values['Event Name'];
         form['fields'] = {}
         for(var key in fields){
             form['fields'][key]=fields[key];
         }
         console.log(form)
-        //utils.send_form(form)
+        
+        // send the form to the server
+        sent_form = await this._send_form(form);
+        if(sent_form){
+            Alert.alert('Created the event!');
+        }
+        else{
+            Alert.alert('could not create the event, please try again');
+        }
+    }
+
+    _send_form = async (form) => {
+        console.log(form)
+        let tries = 0;
+        let result = false;
+        while(!result && tries < 3){
+            result = await fetch(events_api,
+                                {
+                                    method: 'POST',
+                                    headers: {
+                                    Accept: 'application/json',
+                                    'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(form)
+                                })
+                                // TODO: change to parsing the response
+                                // its like that now because the parsing raised an error
+                            .then(response => {console.log(response); return response}) //return response.json()})
+                            .then(server_response => {
+                                console.log(server_response)
+                                if(server_response.status == 'success' || true){
+                                    return true
+                                }
+                                else{
+                                    console.log('server failed')
+                                    tries = 3;
+                                    Alert.alert(server_response.error);
+                                    return false
+                                }
+                            })
+                            .catch(error => {
+                                console.log('app failed')
+                                console.log(error);
+                                if(tries >= 2){
+                                    Alert.alert(error);
+                                }
+                                return false
+                            })
+            tries = tries + 1;
+        }
+        return result;
     }
 }
