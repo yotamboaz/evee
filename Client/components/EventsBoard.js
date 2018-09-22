@@ -22,7 +22,7 @@ export default class EventsBoard extends React.Component{
             event_kind: props.event_kind,
 
             // the event user chosed (relevant only for map view)
-            chosed_event: null,
+            chosed_event: {},
 
             // flag to indicate if should fetch events again from the server
             load_events: true,
