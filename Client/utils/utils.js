@@ -19,6 +19,18 @@ export function collect_categories(form_objects){
     return categories;
 }
 
+export function render_separator(){
+    return (
+        <View
+          style={{
+            height: 1,
+            width: "86%",
+            backgroundColor: "#CED0CE",
+            marginLeft: "14%"
+          }}
+        />
+      );
+}
 
 // string format ref - https://www.npmjs.com/package/string-format
 export const string_format = require('string-format');
