@@ -1,4 +1,5 @@
 import React from 'react';
+import { View } from 'react-native';
 
 export function collect_categories(form_objects){
     let categories = {'Default': ['Default']};
@@ -34,4 +35,3 @@ export function render_separator(){
 
 // string format ref - https://www.npmjs.com/package/string-format
 export const string_format = require('string-format');
-
