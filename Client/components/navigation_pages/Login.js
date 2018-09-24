@@ -18,6 +18,8 @@ import { TextButton, RaisedTextButton } from 'react-native-material-buttons';
 // TextField ref - https://github.com/n4kz/react-native-material-textfield#properties
 import { TextField } from 'react-native-material-textfield';
 
+var nav; // contains the global navigation object		
+export { nav };
 
 export default class Login extends Component{
     constructor(props){
@@ -127,7 +129,7 @@ export default class Login extends Component{
             return
         }
         else if(details.error){
-            Alert.alert('Connection with google account failed')
+            Alert.alert('Connection with facebook account failed')
             return
         }
 
@@ -253,8 +255,12 @@ export default class Login extends Component{
         user['email'] = user_email;
         user['id'] = user_id;
 
-        this.state.navigation_cb(this.state.navigation, user);
-;    }
+        nav = this.state.navigation;
+        nav.navigate('EventsBoard', {
+            id: user_id,
+            username: user_name,
+        });
+    }
 
     
 }
