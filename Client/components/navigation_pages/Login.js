@@ -256,7 +256,7 @@ export default class Login extends Component{
         user['id'] = user_id;
 
         nav = this.state.navigation;
-        nav.navigate('EventsBoard', {
+        nav.navigate('Board', {
             id: user_id,
             username: user_name,
         });
