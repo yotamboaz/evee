@@ -5,6 +5,9 @@ import { StackNavigator, DrawerNavigator, createStackNavigator, createDrawerNavi
 import styles from '../utils/styles';
 import EventsBoard from './EventsBoard';
 
+import { events as events_server_api } from '../utils/Server_api';
+import * as utils from '../utils/utils';
+
 export default class Board extends React.Component{
 
     constructor(props){
@@ -21,9 +24,47 @@ export default class Board extends React.Component{
 			boardButtonOpacity: 1,
 			menuActive: false,
             menuOpacity: 0.5,
-            event_kind: 'board'
+			event_kind: 'board',
+			// flag to indicate if should fetch events again from the server
+			load_events: true,
+			// the public events
+			events: []
         }
         console.log('================== '+this.state.id + " :: " + this.state.username);
+	}
+	
+	async componentDidMount(){
+        if(!this.state.load_events){
+            return
+        }
+        
+       events = await this.fetch_events()
+       console.log(events);
+
+        // filter the events \\
+        //============================= READ THIS BEFORE WORKING ON FILTER ==========================\\
+        // need to think if filttering process should be here,                                       \\
+        // because user might change filter options, and refetching                                  \\
+        // events each time user change filter is not scalable, and not officiant.                   \\
+        // maybe add filtered_events to state, and present them if user chosed filter options.       \\
+        //===========================================================================================\\
+        // events = this.filter_events(events)
+
+        this.setState(prev_state => {
+            return {
+                id: prev_state.id,
+				username: prev_state.username,
+				isLoading: false,
+				aroundMeButtonOpacity: prev_state.aroundMeButtonOpacity,
+				boardButtonOpacity: prev_state.boardButtonOpacity,
+				menuActive: prev_state.menuActive,
+				menuOpacity: prev_state.menuOpacity,
+				event_kind: prev_state.event_kind,
+				load_events: false,
+				events: events
+            }
+        })
+        
     }
 
     boardButton() {
@@ -58,7 +99,6 @@ export default class Board extends React.Component{
 			return this.menuMode();
 		}
 		else {
-            console.log("going to render menu + events");
             return this.renderEvents();
 		}
     }
@@ -99,7 +139,7 @@ export default class Board extends React.Component{
 					</View>
 				</View>
                 <View style={styles.mainContent}>
-                    <EventsBoard id={this.state.id} event_kind={this.state.event_kind}/>
+                    <EventsBoard id={this.state.id} events={this.state.events} event_kind={this.state.event_kind}/>
                 </View>
 			</View>
         )
@@ -152,6 +192,34 @@ export default class Board extends React.Component{
                 />
 			</View>
 		);
+	}
+	
+	fetch_events = async () => {
+        let tries = 0;
+        var events = null;
+        while(!events && tries < 3){
+            events = await fetch(events_server_api)
+                 .then(response => response.json())
+                 .then(server_response => {
+                     if(server_response.status == 'success' || true){
+                         return server_response;
+                         //should be:
+                         // return server_response.events
+                     }
+                     else{
+                        Alert.alert(error);
+                        tries = 3;
+                     }
+                 })
+                 .catch(error => {
+                     console.log(error);
+                     if(tries >= 2){
+                         Alert.alert('Could not fetch events from the server, pleae try again');
+                     }
+                 })
+            tries = tries + 1;
+        }
+        return events
     }
 
     _delete_user = async () => {

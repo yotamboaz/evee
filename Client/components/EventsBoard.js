@@ -16,13 +16,13 @@ export default class EventsBoard extends React.Component{
             id: props.id,
 
             // public events
-            events: [],
+            events: props.events,
 
             // event kind is board/map according to user page. board = map, than kind='map'...
             event_kind: props.event_kind,
 
             // the event user chosed (relevant only for map view)
-            chosed_event: {},
+            chosed_event: null,
 
             // flag to indicate if should fetch events again from the server
             load_events: true,
@@ -32,68 +32,22 @@ export default class EventsBoard extends React.Component{
         }   
     }
 
-    fetch_events = async () => {
-        let tries = 0;
-        var events = null;
-        while(!events && tries < 3){
-            events = await fetch(events_server_api)
-                 .then(response => response.json())
-                 .then(server_response => {
-                     if(server_response.status == 'success' || true){
-                         return server_response;
-                         //should be:
-                         // return server_response.events
-                     }
-                     else{
-                        Alert.alert(error);
-                        tries = 3;
-                     }
-                 })
-                 .catch(error => {
-                     console.log(error);
-                     if(tries >= 2){
-                         Alert.alert('Could not fetch events from the server, pleae try again');
-                     }
-                 })
-            tries = tries + 1;
-        }
-        console.log(events)
-        return events
-    }
-
-    async componentDidMount(){
-        if(!this.state.load_events){
-            return
-        }
-        
-       events = await this.fetch_events()
-
-        // filter the events \\
-        //============================= READ THIS BEFORE WORKING ON FILTER ==========================\\
-        // need to think if filttering process should be here,                                       \\
-        // because user might change filter options, and refetching                                  \\
-        // events each time user change filter is not scalable, and not officiant.                   \\
-        // maybe add filtered_events to state, and present them if user chosed filter options.       \\
-        //===========================================================================================\\
-        // events = this.filter_events(events)
-
+    componentWillReceiveProps(props){
         this.setState(prev_state => {
             return {
                 id: prev_state.id,
-                events: events,
-                event_kind: prev_state.event_kind,
-                chosed_event: null,
-                load_events: false,
+                events: props.events,
+                event_kind: props.event_kind,
+                chosed_event: prev_state.chosed_event,
+                load_events: prev_state.load_events,
             }
         })
-        
     }
 
     render(){
-        console.log(this.state)
         var events = this._generate_events(this.state.events);
         return (
-            <View>
+            <View style={{flex: 1, alignItems: "center", justifyContent: "center"}}>
                 {events}
             </View>
         )
@@ -128,8 +82,11 @@ export default class EventsBoard extends React.Component{
                 </View>
         }
         else{
-            if(this.state.events.length == 0) 
+            if(this.state.events.length == 0){
+                console.log('no events');
                 return null
+            }
+            console.log('yesh events');
             
             event_board = 
                 <View style={{ flex: 1, alignItems: "center", justifyContent: "center", width: '150%' }}>
@@ -149,6 +106,7 @@ export default class EventsBoard extends React.Component{
                                 extraData={this.state.chosed_event} />
                 </View>
         }
+        console.log(event_board);
         return event_board
     }
 
@@ -188,8 +146,16 @@ export default class EventsBoard extends React.Component{
     }
 
     register_to_event = (event_id) => {
+        if(Platform.OS == 'android'){
+            // chosed_event is the one to register to.
+            // no user_id recieved
+            event_to_register = this.state.chosed_event.id
+        }
+        else{
+            event_to_register = event_id;
+        }
+        
         // connect to the server, and upoad event_id and the user_id
-        event_to_register = event_id;
         user_id = this.state.id;
         var register_msg_body = {event_id: event_to_register, user_id: user_id};
         console.log(utils.string_format("registering user - {0} to event - {1}",user_id, event_to_register));
