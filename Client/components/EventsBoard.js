@@ -83,10 +83,8 @@ export default class EventsBoard extends React.Component{
         }
         else{
             if(this.state.events.length == 0){
-                console.log('no events');
                 return null
             }
-            console.log('yesh events');
             
             event_board = 
                 <View style={{ flex: 1, alignItems: "center", justifyContent: "center", width: '150%' }}>
@@ -106,7 +104,6 @@ export default class EventsBoard extends React.Component{
                                 extraData={this.state.chosed_event} />
                 </View>
         }
-        console.log(event_board);
         return event_board
     }
 
