@@ -80,7 +80,6 @@ export default class UserForm extends React.Component {
                     .then(response => response.json())
                     .then(server_response => {
                         if(server_response.status == 'success' || true){
-                            console.log(server_response);
                             return server_response;
                             // should be:
                             // return server_response.forms
@@ -594,7 +593,6 @@ export default class UserForm extends React.Component {
         for(var key in fields){
             form['fields'][key]=fields[key];
         }
-        console.log(form)
         
         // send the form to the server
         sent_form = await this._send_form(form);
