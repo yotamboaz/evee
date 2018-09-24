@@ -8,7 +8,7 @@ import FontAwesome, { Icons } from 'react-native-fontawesome';
 
 import Login from './components/navigation_pages/Login';
 import Hamburger1 from './hamburger1';
-import EventsBoard from './components/EventsBoard';
+import Board from './components/Board';
 
 //export { nav };
 
@@ -69,7 +69,7 @@ function eventPost(navigation) {
 			'Event must contain at least 1 character!',
 			[
 				{text: 'Try Again'},
-				{text: 'Back To Events Screen', onPress: () => nav.navigate('EventsBoard')},
+				{text: 'Back To Events Screen', onPress: () => nav.navigate('Board')},
 			],
 			{ cancelable: false }
 		)
@@ -87,7 +87,7 @@ function eventPost(navigation) {
 			}),
 		});
 		eventDetails = " ";
-		nav.navigate('EventsBoard'); // Back to main events screen
+		nav.navigate('Board'); // Back to main events screen
 	}
 }
 
@@ -104,10 +104,10 @@ const RootNavigator = createStackNavigator({
 		headerTitle: 'New Event',
     },
   },
-  EventsBoard: {
-	screen: EventsBoard,
+  Board: {
+	screen: Board,
     navigationOptions: {
-		headerTitle: 'Events Board',
+		headerTitle: 'Board',
     },
 	},
 	EventDetails: {
