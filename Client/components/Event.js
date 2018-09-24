@@ -45,10 +45,10 @@ export default class Event extends React.Component{
 
     render(){
         var details = this.get_event_details(this.state.event)
-        var event_details = details.map(detail =>   <Text  key={detail}
+        var event_details = details.map(detail =>   (<Text  key={detail}
                                                             style={{fontWeight: 'bold'}}>
                                                         {detail}
-                                                    </Text>);
+                                                    </Text>));
         if(this.state.event_kind == 'map'){
             var latlng = {};
 
@@ -84,6 +84,7 @@ export default class Event extends React.Component{
         else{
             if(this.state.show_data)
                 console.log(details)
+
             return (
                 <View key={this.state.event.id} style={{borderColor: 'black',
                                                         backgroundColor: 'azure',
@@ -141,7 +142,7 @@ export default class Event extends React.Component{
                 }
             })
         }
-
+        console.log(this.state.event)
         this.state.chosed_event_cb(this.state.event.name, this.state.event.id);
     }
 
