@@ -11,7 +11,7 @@ import'./App';
 var serverConnection;
 //var ipAddress = 'http://192.168.1.16:8080/firstwebapp/webapi/events';
 //var ipAddress = 'http://vmedu158.mtacloud.co.il:8080/firstwebapp/webapi/events';
-var ipAddress = 'http://vmedu158.mtacloud.co.il:8080/evee/webapi/events';
+var ipAddress = 'http://vmedu158.mtacloud.co.il:8080/evee/webapi/events/';
 
 export default class EventsBoard extends Component {
 
