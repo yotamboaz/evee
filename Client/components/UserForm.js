@@ -108,7 +108,7 @@ export default class UserForm extends React.Component {
 
         return(
             //contentContainerStyle={{flex: 1}}
-            <View style={{flexDirection: 'column'}}>
+            <ScrollView style={{flexDirection: 'column'}} contentContainerStyle={{flex: 1}} >
                 <MapView
                     style={{ flex: 1, width: 300 }}
                     initialRegion={location_utils.get_current_location()}
@@ -119,42 +119,37 @@ export default class UserForm extends React.Component {
                                        }} >
                 {marker}
                 </MapView>
-                    <ScrollView>
-                    <TextField label='Address'
-                                value={this.state.location['address']} 
-                                onSubmitEditing={address_event => this.on_address_picked(address_event.nativeEvent.text)} />
+                <TextField label='Address'
+                            value={this.state.location['address']} 
+                            onSubmitEditing={address_event => this.on_address_picked(address_event.nativeEvent.text)} />
 
-                    <Categories selected_category={this.state.selected_category}
-                                selected_sub_category={this.state.selected_sub_category}
-                                categories={this.state.categories}
-                                on_category_changed={this.on_category_changed}
-                                on_sub_category_changed={this.on_sub_category_changed} /> 
+                <Categories selected_category={this.state.selected_category}
+                            selected_sub_category={this.state.selected_sub_category}
+                            categories={this.state.categories}
+                            on_category_changed={this.on_category_changed}
+                            on_sub_category_changed={this.on_sub_category_changed} /> 
 
-                    <TextField label='Event Name'
-                                value={this.state.field_values['event_name']}
-                                onChangeText={name => {this.on_form_field_changed('Event Name', name)}} />
+                <TextField label='Event Name'
+                            value={this.state.field_values['event_name']}
+                            onChangeText={name => {this.on_form_field_changed('Event Name', name)}} />
 
-                    {form_fields}
-                    
-                    <TextField label='restrict participants' 
-                                onSubmitEditing={user_restriction => {this.on_participants_restriction(user_restriction.nativeEvent.text)}} />
+                {form_fields}
 
-                    <TextField label='info'
-                            multiline={true}
-                            value={this.state.field_values['info']}
-                            onSubmitEditing={info_event => {this.on_form_field_changed('info', info_event.nativeEvent.text)}} />
+                <TextField label='info'
+                           multiline={true}
+                           value={this.state.field_values['info']}
+                           onSubmitEditing={info_event => {this.on_form_field_changed('info', info_event.nativeEvent.text)}} />
 
-                    <DatePicker on_date_pick={this.on_date_pick}
-                                show_date={this.state.show_date}
-                                confirm_date={this.confirm_date}
-                                cancel_date={this.cancel_date} />
-                    {this.state.date!=null && (<View>
-                                            <Text>{this.state.date.date}</Text>
-                                            <Text>{this.state.date.time}</Text>
-                                            </View>)}
-                    <Button title='Submit' onPress={this.submit_form} />
-                </ScrollView>
-            </View>
+                <DatePicker on_date_pick={this.on_date_pick}
+                            show_date={this.state.show_date}
+                            confirm_date={this.confirm_date}
+                            cancel_date={this.cancel_date} />
+                <View>
+                    <Text>{this.state.date.date}</Text>
+                    <Text>{this.state.date.time}</Text>
+                </View>
+                <Button title='Submit' onPress={this.submit_form} />
+            </ScrollView>
         );
     }
 
