@@ -6,6 +6,9 @@ import * as utils from '../utils/utils';
 // expo map-view ref - https://github.com/react-community/react-native-maps/blob/master/docs/mapview.md
 import { MapView } from 'expo';
 
+// Text/RaisedButton ref - https://github.com/n4kz/react-native-material-buttons
+import { TextButton, RaisedTextButton } from 'react-native-material-buttons';
+
 export default class Event extends React.Component{
     constructor(props){
         super(props)
@@ -14,8 +17,30 @@ export default class Event extends React.Component{
             show_data: props.show_data,
             event_kind: props.event_kind,
             chosed_event_cb: props.chosed_event_cb,
+            time_stamp: null,
             register_to_event_cb: props.register_to_event_cb
         }
+    }
+
+    componentDidUpdate(next_props, next_state){
+        if(this.state.event_kind=='map'){
+            if(this.state.show_data != next_props.show_data){
+                this.setState(prev_state => {
+                    return {
+                        event: prev_state.event,
+                        show_data: next_props.show_data,
+                        event_kind: prev_state.event_kind,
+                        chosed_event_cb: prev_state.chosed_event_cb,
+                        time_stamp: Date.now(),
+                        register_to_event_cb: prev_state.register_to_event_cb
+                    }
+                })
+                return true;
+            }
+            return false;
+        }
+       
+        return true;
     }
 
     render(){
@@ -26,14 +51,23 @@ export default class Event extends React.Component{
                                                     </Text>);
         if(this.state.event_kind == 'map'){
             var latlng = {};
-            latlng['latitude'] = this.state.event.location['latitude'];
-            latlng['longitude'] = this.state.event.location['longitude'];
 
-            key = Platform.OS == 'ios' ? this.state.event.id : utils.string_format('{0}{1}', this.state.event.id, Date.now());
-            
+            //=============================\\
+            // TODO: Remove the condition. \\
+            //=============================\\
+            // caused by bad server version that saved wrong details.
+            if(this.state.event.location){
+                latlng['latitude'] = this.state.event.location['latitude'];
+                latlng['longitude'] = this.state.event.location['longitude'];
+            }
+            else{
+                latlng['latitude'] = 32.5;
+                latlng['longitude'] = 30.1;
+            }
+
+            key = Platform.OS == 'ios' ? this.state.event.id : utils.string_format('{0}{1}', this.state.event.id, this.state.time_stamp);
             return (
                 <MapView.Marker coordinate={latlng}
-                                // title={this.state.event.name}
                                 onPress={this.chosed_event}
                                 key={key}
                                 ref={marker => {this.marker = marker}}> 
@@ -44,20 +78,24 @@ export default class Event extends React.Component{
                                         {Platform.OS == 'ios' && <Button onPress={this.register_to_event} title='register' />}
                                     </View>
                                 </MapView.Callout>
-                                    {/* {this._generate_event_data(event_details, this.marker)}
-                                    {this.state.show_data ? showCallout():null} */}
                 </MapView.Marker>
                 )
         }
         else{
+            if(this.state.show_data)
+                console.log(details)
             return (
                 <View key={this.state.event.id} style={{borderColor: 'black',
                                                         backgroundColor: 'azure',
                                                         justifyContent:'space-between',
                                                         alignContent: 'stretch'}}>
                     <Button onPress={this.chosed_event} title={this.state.event.name} key='event_button' />
-                    {event_details}
-                    {this.state.show_data ? <Button title='register' onPress={this.register_to_event} key='register_button' /> : null}
+                    {this.state.show_data ? event_details : null}
+                    {this.state.show_data ? <TextButton  title='register'
+                                                         onPress={this.register_to_event}
+                                                         key='register_button'
+                                                         titleColor='black'
+                                                         color='azure' /> : null}
                 </View>
             )
         }
@@ -73,32 +111,37 @@ export default class Event extends React.Component{
     }
 
     get_event_details = (event) => {
-        const time = 0;
-        const date = 1;
-
         var details = [];
 
-        let result = this.get_date(event.date);
-        var event_time = result[time];
-        var event_date = result[date];
+        const date = new Date(event.date);
         
         details.push(utils.string_format('Event name: {0}', event.name));
-        details.push(utils.string_format('Address: {0}', event.location.address));
-        details.push(utils.string_format('Time: {0}', event_time));
-        details.push(utils.string_format('Date: {0}', event_date))
+
+        // TODO: Should remove the condition.
+        // bad version of the server saved wrong details that caused crush
+        if(event.location){
+            details.push(utils.string_format('Address: {0}', event.location.address));
+        }
+        details.push(utils.string_format('Time: {0}:{1}', date.getHours(), date.getMinutes()));
+        details.push(utils.string_format('Date: {0}', date.getDate()));
         Object.keys(event.fields).forEach(key => {details.push(utils.string_format('{0}: {1}', key, event.fields[key]))})
 
         return details
     }
 
-    get_date = (date) => {
-        time = 'x:x'
-        date = 'y.y.y'
-
-        return [time, date];
-    }
-
     chosed_event = () => {
+        if(this.state.event_kind == 'board'){
+            this.setState(prev_state => {
+                return {
+                    event: prev_state.event,
+                    show_data: !prev_state.show_data,
+                    event_kind: prev_state.event_kind,
+                    chosed_event_cb: prev_state.chosed_event_cb,
+                    register_to_event_cb: prev_state.register_to_event_cb
+                }
+            })
+        }
+
         this.state.chosed_event_cb(this.state.event.name, this.state.event.id);
     }
 
