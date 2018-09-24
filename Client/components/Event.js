@@ -44,7 +44,7 @@ export default class Event extends React.Component{
     }
 
     render(){
-        var details = this.get_event_details(this.state.event)
+        var details = get_event_details(this.state.event)
         var event_details = details.map(detail =>   <Text  key={detail}
                                                             style={{fontWeight: 'bold'}}>
                                                         {detail}
@@ -110,25 +110,6 @@ export default class Event extends React.Component{
         }, 500);
     }
 
-    get_event_details = (event) => {
-        var details = [];
-
-        const date = new Date(event.date);
-        
-        details.push(utils.string_format('Event name: {0}', event.name));
-
-        // TODO: Should remove the condition.
-        // bad version of the server saved wrong details that caused crush
-        if(event.location){
-            details.push(utils.string_format('Address: {0}', event.location.address));
-        }
-        details.push(utils.string_format('Time: {0}:{1}', date.getHours(), date.getMinutes()));
-        details.push(utils.string_format('Date: {0}', date.getDate()));
-        Object.keys(event.fields).forEach(key => {details.push(utils.string_format('{0}: {1}', key, event.fields[key]))})
-
-        return details
-    }
-
     chosed_event = () => {
         if(this.state.event_kind == 'board'){
             this.setState(prev_state => {
@@ -167,6 +148,25 @@ export default class Event extends React.Component{
     register_to_event = () => {
         this.state.register_to_event_cb(this.state.event.id);
     }
+}
+
+export const  get_event_details = (event) => {
+    var details = [];
+
+    const date = new Date(event.date);
+    
+    details.push(utils.string_format('Event name: {0}', event.name));
+
+    // TODO: Should remove the condition.
+    // bad version of the server saved wrong details that caused crush
+    if(event.location){
+        details.push(utils.string_format('Address: {0}', event.location.address));
+    }
+    details.push(utils.string_format('Time: {0}:{1}', date.getHours(), date.getMinutes()));
+    details.push(utils.string_format('Date: {0}', date.getDate()));
+    Object.keys(event.fields).forEach(key => {details.push(utils.string_format('{0}: {1}', key, event.fields[key]))})
+
+    return details
 }
 
 const styles = StyleSheet.create({
