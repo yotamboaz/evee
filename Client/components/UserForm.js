@@ -29,6 +29,7 @@ export default class UserForm extends React.Component {
             date: null,
             location: {},
             additional_data: null,
+            max_num_of_participants: null,
             current_form: {category: null, sub_category: null},
             field_values: {},
             invalid_fields: {},
@@ -63,6 +64,7 @@ export default class UserForm extends React.Component {
                 date: prev_state.date,
                 location: prev_state.location,
                 additional_data: prev_state.additional_data,
+                max_num_of_participants: prev_state.max_num_of_participants,
                 current_form: prev_state.current_form,
                 field_values: prev_state.field_values,
                 invalid_fields: prev_state.invalid_fields,
@@ -79,10 +81,8 @@ export default class UserForm extends React.Component {
             forms = await fetch(formats_api)
                     .then(response => response.json())
                     .then(server_response => {
-                        if(server_response.status == 'success' || true){
-                            return server_response;
-                            // should be:
-                            // return server_response.forms
+                        if(server_response.status == 'success'){
+                            return server_response.formats;
                         }
                         else{
                             tries = 5;
@@ -108,7 +108,7 @@ export default class UserForm extends React.Component {
 
         return(
             //contentContainerStyle={{flex: 1}}
-            <ScrollView style={{flexDirection: 'column'}} contentContainerStyle={{flex: 1}} >
+            <View style={{flexDirection: 'column'}}>
                 <MapView
                     style={{ flex: 1, width: 300 }}
                     initialRegion={location_utils.get_current_location()}
@@ -119,37 +119,43 @@ export default class UserForm extends React.Component {
                                        }} >
                 {marker}
                 </MapView>
-                <TextField label='Address'
-                            value={this.state.location['address']} 
-                            onSubmitEditing={address_event => this.on_address_picked(address_event.nativeEvent.text)} />
+                    <ScrollView>
+                    <TextField label='Address'
+                                value={this.state.location['address']} 
+                                onSubmitEditing={address_event => this.on_address_picked(address_event.nativeEvent.text)} />
 
-                <Categories selected_category={this.state.selected_category}
-                            selected_sub_category={this.state.selected_sub_category}
-                            categories={this.state.categories}
-                            on_category_changed={this.on_category_changed}
-                            on_sub_category_changed={this.on_sub_category_changed} /> 
+                    <Categories selected_category={this.state.selected_category}
+                                selected_sub_category={this.state.selected_sub_category}
+                                categories={this.state.categories}
+                                on_category_changed={this.on_category_changed}
+                                on_sub_category_changed={this.on_sub_category_changed} /> 
 
-                <TextField label='Event Name'
-                            value={this.state.field_values['event_name']}
-                            onChangeText={name => {this.on_form_field_changed('Event Name', name)}} />
+                    <TextField label='Event Name'
+                                value={this.state.field_values['event_name']}
+                                onChangeText={name => {this.on_form_field_changed('Event Name', name)}} />
 
-                {form_fields}
+                    {form_fields}
+                    
+                    <TextField label='restrict participants' 
+                                value={this.state.max_num_of_participants}
+                                onSubmitEditing={user_restriction => self.on_participants_restriction(user_restriction.nativeEvent.text)} />
 
-                <TextField label='info'
-                           multiline={true}
-                           value={this.state.field_values['info']}
-                           onSubmitEditing={info_event => {this.on_form_field_changed('info', info_event.nativeEvent.text)}} />
+                    <TextField label='info'
+                            multiline={true}
+                            value={this.state.field_values['info']}
+                            onSubmitEditing={info_event => {this.on_form_field_changed('info', info_event.nativeEvent.text)}} />
 
-                <DatePicker on_date_pick={this.on_date_pick}
-                            show_date={this.state.show_date}
-                            confirm_date={this.confirm_date}
-                            cancel_date={this.cancel_date} />
-                {this.state.date!=null && (<View>
-                                           <Text>{this.state.date.date}</Text>
-                                           <Text>{this.state.date.time}</Text>
-                                           </View>)}
-                <Button title='Submit' onPress={this.submit_form} />
-            </ScrollView>
+                    <DatePicker on_date_pick={this.on_date_pick}
+                                show_date={this.state.show_date}
+                                confirm_date={this.confirm_date}
+                                cancel_date={this.cancel_date} />
+                    {this.state.date!=null && (<View>
+                                            <Text>{this.state.date.date}</Text>
+                                            <Text>{this.state.date.time}</Text>
+                                            </View>)}
+                    <Button title='Submit' onPress={this.submit_form} />
+                </ScrollView>
+            </View>
         );
     }
 
@@ -207,6 +213,7 @@ export default class UserForm extends React.Component {
             date: prev_state.date,
             location: prev_state.location,
             additional_data: prev_state.additional_data,
+            max_num_of_participants: prev_state.max_num_of_participants,
             current_form: {category: null, sub_category: null},
             field_values: {},
             invalid_fields: prev_state.invalid_fields,
@@ -246,6 +253,7 @@ export default class UserForm extends React.Component {
                 date: prev_state.date,
                 location: prev_state.location,
                 additional_data: prev_state.additional_data,
+                max_num_of_participants: prev_state.max_num_of_participants,
                 current_form: {category: category, sub_category: sub_category},
                 // Changed dynamic form, thus emptying the current one
                 field_values: {},
@@ -275,6 +283,7 @@ export default class UserForm extends React.Component {
                 date: prev_state.date,
                 location: prev_state.location,
                 additional_data: prev_state.additional_data,
+                max_num_of_participants: prev_state.max_num_of_participants,
                 current_form: prev_state.current_form,
                 field_values: field_values,
                 invalid_fields: prev_state.invalid_fields,
@@ -302,6 +311,7 @@ export default class UserForm extends React.Component {
                 date: date,
                 location: prev_state.location,
                 additional_data: prev_state.additional_data,
+                max_num_of_participants: prev_state.max_num_of_participants,
                 current_form: prev_state.current_form,
                 field_values: prev_state.field_values,
                 invalid_fields: prev_state.invalid_fields,
@@ -324,6 +334,7 @@ export default class UserForm extends React.Component {
                 date: prev_state.date,
                 location: prev_state.location,
                 additional_data: prev_state.additional_data,
+                max_num_of_participants: prev_state.max_num_of_participants,
                 current_form: prev_state.current_form,
                 field_values: prev_state.field_values,
                 invalid_fields: prev_state.invalid_fields,
@@ -347,6 +358,7 @@ export default class UserForm extends React.Component {
                 date: prev_state.date,
                 location: prev_state.location,
                 additional_data: prev_state.additional_data,
+                max_num_of_participants: prev_state.max_num_of_participants,
                 current_form: prev_state.current_form,
                 field_values: prev_state.field_values,
                 invalid_fields: prev_state.invalid_fields,
@@ -395,6 +407,58 @@ export default class UserForm extends React.Component {
                         .catch(error => console.log(error))
     }
 
+    on_participants_restriction = (restriction) => {
+            var invalid_fields = this.state.invalid_fields
+            var regex = /^\d+$/;
+            if(!regex.test(restriction) || restriction < 0){
+                invalid_fields['restrict participants'] = 'Invalid value. value must be a positive number.'
+                this.setState(prev_state => {
+                    return {
+                        user_id: prev_state.user_id,
+                        form_objects: form_objects,
+                        categories: categories,
+                        selected_category: prev_state.selected_category,
+                        selected_sub_category: prev_state.selected_sub_category,
+                        event_name: prev_state.event_name,
+                        show_date: prev_state.show_date,
+                        date: prev_state.date,
+                        location: prev_state.location,
+                        additional_data: prev_state.additional_data,
+                        max_num_of_participants: restriction,
+                        current_form: prev_state.current_form,
+                        field_values: prev_state.field_values,
+                        invalid_fields: invalid_fields,
+                        registered_fields: prev_state.registered_fields,
+                        pull_forms: prev_state.pull_forms
+                    }
+                })
+                return
+            }
+            if(invalid_fields.hasOwnProperty('restrict participants')){
+                delete invalid_fields['restrict participants'];
+            }
+            this.setState(prev_state => {
+                return {
+                    user_id: prev_state.user_id,
+                    form_objects: form_objects,
+                    categories: categories,
+                    selected_category: prev_state.selected_category,
+                    selected_sub_category: prev_state.selected_sub_category,
+                    event_name: prev_state.event_name,
+                    show_date: prev_state.show_date,
+                    date: prev_state.date,
+                    location: prev_state.location,
+                    additional_data: prev_state.additional_data,
+                    max_num_of_participants: restriction,
+                    current_form: prev_state.current_form,
+                    field_values: prev_state.field_values,
+                    invalid_fields: prev_state.invalid_fields,
+                    registered_fields: prev_state.registered_fields,
+                    pull_forms: prev_state.pull_forms
+                }
+            })
+    }
+
     on_address_picked = (address) => {    
         // updating the location selected
         // update location parameter, and form_fields[address]
@@ -424,6 +488,7 @@ export default class UserForm extends React.Component {
                                             longitude: geometry.longitude,
                                             address: address},
                                 additional_data: prev_state.additional_data,
+                                max_num_of_participants: prev_state.max_num_of_participants,
                                 current_form: prev_state.current_form,
                                 field_values: prev_state.field_values,
                                 invalid_fields: prev_state.invalid_fields,
@@ -449,6 +514,7 @@ export default class UserForm extends React.Component {
                 date: prev_state.date,
                 location: prev_state.location,
                 additional_data: prev_state.additional_data,
+                max_num_of_participants: prev_state.max_num_of_participants,
                 current_form: prev_state.current_form,
                 invalid_fields: prev_state.invalid_fields,
                 registered_fields: prev_state.registered_fields,
@@ -477,6 +543,7 @@ export default class UserForm extends React.Component {
                 date: prev_state.date,
                 location: prev_state.location,
                 additional_data: prev_state.additional_data,
+                max_num_of_participants: prev_state.max_num_of_participants,
                 current_form: prev_state.current_form,
                 field_values: prev_state.field_values,
                 invalid_fields: prev_state.invalid_fields,
@@ -502,6 +569,7 @@ export default class UserForm extends React.Component {
                 date: prev_state.date,
                 location: prev_state.location,
                 additional_data: prev_state.additional_data,
+                max_num_of_participants: prev_state.max_num_of_participants,
                 current_form: prev_state.current_form,
                 field_values: prev_state.field_values,
                 invalid_fields: prev_state.invalid_fields,
@@ -589,6 +657,7 @@ export default class UserForm extends React.Component {
         form['date'] = this.state.date.date;
         form['time'] = this.state.date.time;
         form['name'] = this.state.field_values['Event Name'];
+        form['max_num_of_participants'] = this.state.max_num_of_participants ? this.state.max_num_of_participants : 0;
         form['fields'] = {}
         for(var key in fields){
             form['fields'][key]=fields[key];
@@ -623,7 +692,7 @@ export default class UserForm extends React.Component {
                             .then(response => {console.log(response); return response}) //return response.json()})
                             .then(server_response => {
                                 console.log(server_response)
-                                if(server_response.status == 'success' || true){
+                                if(server_response.status == 'success'){
                                     return true
                                 }
                                 else{
