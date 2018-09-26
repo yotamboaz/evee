@@ -28,8 +28,9 @@ const FormField = (props) => {
                             onSubmitEditing={(value_event) => props.on_value_changed(props.name, value_event.nativeEvent.text)} />
     }
     else if(props.type == 'integer' || props.type == 'double'){
-        var min_validation = props.min_value!=undefined ? (value) => {return value > props.min_value} : (value) => {return true}
-        var max_validation = props.max_value!=undefined ? (value) => {return value < props.min_value} : (value) => {return true}
+        var regex = /^\d+$/;
+        var min_validation = props.min_value!=undefined ? (value) => {return (regex.test(props.min_value) && value > props.min_value)} : (value) => {return true}
+        var max_validation = props.max_value!=undefined ? (value) => {return (regex.test(props.max_value) && value < props.min_value)} : (value) => {return true}
 
         const field_changed = (value_event) => {
             var value = value_event.nativeEvent.text

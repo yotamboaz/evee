@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ActivityIndicator, Button, ListView, FlatList, Text, Alert, StyleSheet, TouchableHighlight, InteractionManager, Platform, TextButton } from 'react-native';
+import { View, ActivityIndicator, Button, ListView, FlatList, Text, Alert, StyleSheet, TouchableHighlight, InteractionManager, Platform } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { StackNavigator, DrawerNavigator, createStackNavigator, createDrawerNavigator } from 'react-navigation';
 import styles from '../utils/styles';
@@ -7,6 +7,10 @@ import EventsBoard from './EventsBoard';
 
 import { events as events_server_api } from '../utils/Server_api';
 import * as utils from '../utils/utils';
+import * as storage_utils from '../utils/DataStorage';
+
+// Text/RaisedButton ref - https://github.com/n4kz/react-native-material-buttons
+import { TextButton, RaisedTextButton } from 'react-native-material-buttons';
 
 export default class Board extends React.Component{
 
@@ -201,10 +205,8 @@ export default class Board extends React.Component{
             events = await fetch(events_server_api)
                  .then(response => response.json())
                  .then(server_response => {
-                     if(server_response.status == 'success' || true){
-                         return server_response;
-                         //should be:
-                         // return server_response.events
+                     if(server_response.status == 'success'){
+                         return server_response.events;
                      }
                      else{
                         Alert.alert(error);
