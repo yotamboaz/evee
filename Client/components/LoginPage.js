@@ -127,7 +127,7 @@ export default class LoginPage extends React.Component{
             }
         })
 
-        var user = {name: String(details.name), email: String(details.email)}
+        var user = {username: String(details.name), email: String(details.email)}
         
         //fetch id from our server
         var id = await this._pull_user_from_server(user)
@@ -167,7 +167,7 @@ export default class LoginPage extends React.Component{
             }
         })
 
-        var user = {name: String(details.name), email: String(details.email)}
+        var user = {username: String(details.name), email: String(details.email)}
         
         //fetch id from our server
         var id = await this._pull_user_from_server(user)
@@ -214,8 +214,8 @@ export default class LoginPage extends React.Component{
                  .then(response => response.json())
                  .then(server_response => {
                         console.log(server_response)
-                        if(server_response.status=='success' || true){
-                            return String(server_response.userid);
+                        if(server_response.status=='success'){
+                            return String(server_response.user.userid);
                         }
                         else{
                             tries = 5
