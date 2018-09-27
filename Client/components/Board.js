@@ -8,6 +8,10 @@ import EventsBoard from './EventsBoard';
 import { events as events_server_api } from '../utils/Server_api';
 import * as utils from '../utils/utils';
 import * as storage_utils from '../utils/DataStorage';
+<<<<<<< HEAD
+=======
+import { nav } from './navigation_pages/Login';
+>>>>>>> Add files via upload
 
 // Text/RaisedButton ref - https://github.com/n4kz/react-native-material-buttons
 import { TextButton, RaisedTextButton } from 'react-native-material-buttons';
@@ -33,8 +37,13 @@ export default class Board extends React.Component{
 			load_events: true,
 			// the public events
 			events: []
+<<<<<<< HEAD
         }
         console.log('================== '+this.state.id + " :: " + this.state.username);
+=======
+		}
+		global.id = userID;
+>>>>>>> Add files via upload
 	}
 	
 	async componentDidMount(){
@@ -145,6 +154,16 @@ export default class Board extends React.Component{
                 <View style={styles.mainContent}>
                     <EventsBoard id={this.state.id} events={this.state.events} event_kind={this.state.event_kind}/>
                 </View>
+<<<<<<< HEAD
+=======
+				<View style={styles.bottomContent}>
+					<TouchableHighlight onPress={() => nav.navigate('NewEventScreen')}>
+						<Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
+							New Event
+						</Text>
+					</TouchableHighlight>
+                </View>
+>>>>>>> Add files via upload
 			</View>
         )
     }
@@ -185,7 +204,11 @@ export default class Board extends React.Component{
 					</View>
 				</View>
                 <Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
+<<<<<<< HEAD
                     {this.state.name}
+=======
+                    {this.state.username}
+>>>>>>> Add files via upload
                 </Text>
                 <TextButton 
                     title='Logout'
