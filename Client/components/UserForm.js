@@ -137,7 +137,7 @@ export default class UserForm extends React.Component {
                     {form_fields}
                     
                     <TextField label='restrict participants' 
-                                value={this.state.max_num_of_participants}
+                                value={this.state.max_num_of_participants ? this.state.max_num_of_participants : 'restrict subscribers'}
                                 onSubmitEditing={user_restriction => self.on_participants_restriction(user_restriction.nativeEvent.text)} />
 
                     <TextField label='info'
