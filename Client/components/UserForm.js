@@ -137,8 +137,7 @@ export default class UserForm extends React.Component {
                     {form_fields}
                     
                     <TextField label='restrict participants' 
-                                value={this.state.max_num_of_participants}
-                                onSubmitEditing={user_restriction => self.on_participants_restriction(user_restriction.nativeEvent.text)} />
+                                onSubmitEditing={user_restriction => {this.on_participants_restriction(user_restriction.nativeEvent.text)}} />
 
                     <TextField label='info'
                             multiline={true}
@@ -415,8 +414,8 @@ export default class UserForm extends React.Component {
                 this.setState(prev_state => {
                     return {
                         user_id: prev_state.user_id,
-                        form_objects: form_objects,
-                        categories: categories,
+                        form_objects: prev_state.form_objects,
+                        categories: prev_state.categories,
                         selected_category: prev_state.selected_category,
                         selected_sub_category: prev_state.selected_sub_category,
                         event_name: prev_state.event_name,
@@ -440,8 +439,8 @@ export default class UserForm extends React.Component {
             this.setState(prev_state => {
                 return {
                     user_id: prev_state.user_id,
-                    form_objects: form_objects,
-                    categories: categories,
+                    form_objects: prev_state.form_objects,
+                    categories: prev_state.categories,
                     selected_category: prev_state.selected_category,
                     selected_sub_category: prev_state.selected_sub_category,
                     event_name: prev_state.event_name,
@@ -677,6 +676,7 @@ export default class UserForm extends React.Component {
         console.log(form)
         let tries = 0;
         let result = false;
+
         while(!result && tries < 3){
             result = await fetch(events_api,
                                 {
