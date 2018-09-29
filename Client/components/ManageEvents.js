@@ -34,12 +34,11 @@ export default class ManageEvents extends React.Component{
         else{
             api = utils.string_format('{0}/subscribed_to?owner_id={1}', api, this.state.id);
         }
-        //console.log(":::::"+api);
         let tries = 0;
         var events = null;
         while(!events && tries < 3){
             events = await fetch(api)
-                           .then(response => response.json())
+                           .then(response => {console.log(response); return response.json()})
                            .then(server_response => {
                                if(server_response.status == 'success'){
                                     return server_response.events;

@@ -256,15 +256,15 @@ export default class Board extends React.Component{
         nav.navigate('LoginScreen');
 	}
 	
-	display_owned_events(id){
-		nav.navigate('ManageEventsScreen', {
+	display_owned_events = async () => {
+		nav.navigate('ManageEventsContainer', {
 			id: this.state.id,
 			kind: 'owned_events'
 		});
 	}
 
-	display_subscribed_events(id){
-		nav.navigate('ManageEventsScreen', {
+	display_subscribed_events = async () => {
+		nav.navigate('ManageEventsContainer', {
 			id: this.state.id,
 			kind: 'subscribed_events'
 		});
