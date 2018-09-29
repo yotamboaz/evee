@@ -105,7 +105,7 @@ export default class Event extends React.Component{
 
     componentDidMount(){
         setTimeout(() => {
-            if(this.state.show_data){
+            if(this.state.show_data && this.state.event_kind == 'map'){
                 this.marker.showCallout();
             }
         }, 500);
@@ -113,19 +113,21 @@ export default class Event extends React.Component{
 
     get_event_details = (event) => {
         var details = [];
-
-        const date = new Date(event.date);
+        var date = event.raw_date;
         
-        details.push(utils.string_format('Event name: {0}', event.name));
-
-        // TODO: Should remove the condition.
-        // bad version of the server saved wrong details that caused crush
-        if(event.location){
-            details.push(utils.string_format('Address: {0}', event.location.address));
+        if(date == undefined){
+            date = Date.now();
         }
+        else{
+            date = new Date(date);
+        }
+        console.log(date);
+
+        details.push(utils.string_format('Event name: {0}', event.name));
+        details.push(utils.string_format('Date: {0}', utils.string_format('{0}/{1}/{2}', date.getDate(), date.getMonth(), date.getFullYear())));
         details.push(utils.string_format('Time: {0}:{1}', date.getHours(), date.getMinutes()));
-        details.push(utils.string_format('Date: {0}', date.getDate()));
         Object.keys(event.fields).forEach(key => {details.push(utils.string_format('{0}: {1}', key, event.fields[key]))})
+        details.push(utils.string_format('Event Subscribers: {0}', event.current_num_of_participants))
 
         return details
     }
