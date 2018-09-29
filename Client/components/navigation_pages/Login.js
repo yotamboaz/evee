@@ -5,6 +5,7 @@ import Loading from '../Loading';
 import * as utils from '../../utils/utils';
 import * as storage_utils from '../../utils/DataStorage';
 import * as styles from '../../utils/styles';
+import { users as user_api } from '../../utils/Server_api';
 
 // Facebook api refrence - https://github.com/facebook/react-native-fbsdk
 //                         https://docs.expo.io/versions/latest/sdk/facebook
@@ -145,11 +146,17 @@ export default class Login extends Component{
             }
         })
         
+        var user = {name: details.name, email: details.email}
+
         //fetch id from our server
-        var id = 1;
+        var id = await this._pull_user_from_server(user)
+        if(!id){
+            console.log('user connection failed');
+            return
+        }
+        user['id'] = String(id);
 
         //save the data on the device
-        var user = {name: String(details.name), id: String(id), email: String(details.email)}
         saving_result = await this._save_user(user);
         console.log(saving_result)
 
@@ -191,11 +198,17 @@ export default class Login extends Component{
             }
         })
 
+        var user = {name: String(details.name), email: String(details.email)}
+
         //fetch id from our server
-        var id = 1;
+        var id = await this._pull_user_from_server(user)
+        if(!id){
+            console.log('user connection failed');
+            return
+        }
+        user['id'] = String(id);
 
         //save the data on the device
-        var user = await {name: String(details.name), id: String(id), email: String(details.email)}
         saving_result = await this._save_user(user);
         console.log(saving_result)
 
@@ -226,6 +239,43 @@ export default class Login extends Component{
             }
         })
         await this._delete_user()
+    }
+
+    _pull_user_from_server = async (user) => {
+        let tries = 0
+        var id = false
+        while(!id && tries < 5){
+            id = await fetch(user_api,
+                        {
+                            method: 'POST',
+                            headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(user)
+                        })
+                 .then(response => response.json())
+                 .then(server_response => {
+                        console.log(server_response)
+                        if(server_response.status=='success'){
+                            return String(server_response.user.id);
+                        }
+                        else{
+                            tries = 5
+                            Alert.alert(server_response.error);
+                            return null;
+                        }
+                 })
+                 .catch(error => {
+                    console.log(error)
+                    if(tries >= 4){
+                        Alert.alert('Could not connect with the server, please try agin')
+                    }
+                    return null;
+                 });
+            tries = tries + 1;    
+        }
+        return id;
     }
 
     _save_user = async (user) => {
