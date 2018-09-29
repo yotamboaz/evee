@@ -9,6 +9,7 @@ import { MapView } from 'expo';
 import { TextField } from 'react-native-material-textfield';
 
 import Categories from './Categories';
+import DataMark from './DataMark';
 import FormField from './FormField';
 import DatePicker from './DatePicker';
 import * as utils from '../utils/utils';
@@ -51,6 +52,7 @@ export default class UserForm extends React.Component {
             return;
         }
         var categories = utils.collect_categories(form_objects);
+        console.log(categories)
 
         this.setState(prev_state => {
             return {
@@ -136,9 +138,10 @@ export default class UserForm extends React.Component {
 
                     {form_fields}
                     
-                    <TextField label='restrict participants' 
-                                value={this.state.max_num_of_participants ? this.state.max_num_of_participants : 'restrict subscribers'}
-                                onSubmitEditing={user_restriction => self.on_participants_restriction(user_restriction.nativeEvent.text)} />
+                    <TextField label='Restrict Participants' 
+                                value={this.state.max_num_of_participants ? this.state.max_num_of_participants : ''}
+                                onSubmitEditing={user_restriction => this.on_participants_restriction(user_restriction.nativeEvent.text)} />
+                    <DataMark mark='?' data='optional field, to restrict the event group size' />
 
                     <TextField label='info'
                             multiline={true}
@@ -150,9 +153,10 @@ export default class UserForm extends React.Component {
                                 confirm_date={this.confirm_date}
                                 cancel_date={this.cancel_date} />
                     {this.state.date!=null && (<View>
-                                            <Text>{this.state.date.date}</Text>
-                                            <Text>{this.state.date.time}</Text>
+                                            <Text>{this.state.date.toDateString()}</Text>
+                                            <Text>{utils.string_format('{0}:{1}', this.state.date.getHours(), this.state.date.getMinutes())}</Text>
                                             </View>)}
+
                     <Button title='Submit' onPress={this.submit_form} />
                 </ScrollView>
             </View>
@@ -295,9 +299,9 @@ export default class UserForm extends React.Component {
     }
 
     confirm_date = (date_value) => {
-        var date = {}
-        date['date'] = date_value.toDateString();
-        date['time'] = utils.string_format('{0}:{1}', date_value.getHours(), date_value.getMinutes());
+        // var date = {}
+        // date['date'] = date_value.toDateString();
+        // date['time'] = utils.string_format('{0}:{1}', date_value.getHours(), date_value.getMinutes());
 
         this.setState(prev_state => {
             return {
@@ -308,7 +312,7 @@ export default class UserForm extends React.Component {
                 selected_sub_category: prev_state.selected_sub_category,
                 event_name: prev_state.event_name,
                 show_date: false,
-                date: date,
+                date: date_value,
                 location: prev_state.location,
                 additional_data: prev_state.additional_data,
                 max_num_of_participants: prev_state.max_num_of_participants,
@@ -411,7 +415,7 @@ export default class UserForm extends React.Component {
             var invalid_fields = this.state.invalid_fields
             var regex = /^\d+$/;
             if(!regex.test(restriction) || restriction < 0){
-                invalid_fields['restrict participants'] = 'Invalid value. value must be a positive number.'
+                invalid_fields['restrict participants'] = 'Restrict Participants value must be a positive number.'
                 this.setState(prev_state => {
                     return {
                         user_id: prev_state.user_id,
@@ -650,12 +654,11 @@ export default class UserForm extends React.Component {
         // passed validations
         var fields = this.state.field_values;
         var form = {};
-        form['user_id'] = this.state.user_id
+        form['owner_id'] = this.state.user_id
         form['category'] = this.state.selected_category ? this.state.selected_category : 'Default'
         form['sub_category'] = this.state.selected_sub_category ? this.state.selected_sub_category : 'Default'
         form['location'] = this.state.location;
-        form['date'] = this.state.date.date;
-        form['time'] = this.state.date.time;
+        form['raw_date'] = this.state.date.getTime();
         form['name'] = this.state.field_values['Event Name'];
         form['max_num_of_participants'] = this.state.max_num_of_participants ? this.state.max_num_of_participants : 0;
         form['fields'] = {}
@@ -669,7 +672,7 @@ export default class UserForm extends React.Component {
             Alert.alert('Created the event!');
         }
         else{
-            Alert.alert('could not create the event, please try again');
+            return;
         }
     }
 
@@ -688,11 +691,8 @@ export default class UserForm extends React.Component {
                                     },
                                     body: JSON.stringify(form)
                                 })
-                                // TODO: change to parsing the response
-                                // its like that now because the parsing raised an error
-                            .then(response => {console.log(response); return response}) //return response.json()})
+                            .then(response =>  response.json()) 
                             .then(server_response => {
-                                console.log(server_response)
                                 if(server_response.status == 'success'){
                                     return true
                                 }

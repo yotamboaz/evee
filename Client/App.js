@@ -7,6 +7,7 @@ import { StackNavigator, createStackNavigator } from 'react-navigation';
 import FontAwesome, { Icons } from 'react-native-fontawesome';
 
 import Login from './components/navigation_pages/Login';
+import UserForm from './components/UserForm';
 import Hamburger1 from './hamburger1';
 import Board from './components/Board';
 
@@ -24,21 +25,7 @@ const LoginScreen = ({navigation}) => (<Login navigation={navigation} />);
 
 const NewEventScreen = ({ navigation }) => (
 	<View style={{backgroundColor: '#E2FCFF', flex: 1}}>
-		<View style={{flex: 0.8}}>
-			<TextInput
-				maxLength = {20}
-				autoCapitalize='words'
-				placeholder="Event Details"
-				onChangeText={(text) => eventDetails = text}
-			/>
-		</View>
-		<View style={{flex: 0.2, alignItems: 'center', justifyContent: 'center'}}>
-			<Button
-				onPress={() => eventPost(navigation)}
-				title="Submit"
-				color="#77c8ce"
-			/>
-		</View>
+		<UserForm id={global.id} />
 	</View>
 );
 

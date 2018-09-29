@@ -8,12 +8,11 @@ export function collect_categories(form_objects){
         return
 
     form_objects.forEach(form_obj => {
-        let category = form_obj.category;
-        let sub_category = form_obj.subCategory;
+        var category = form_obj.category;
+        var sub_category = form_obj.sub_category;
         if(!categories.hasOwnProperty(category)){
             categories[category] = []
         }
-
         categories[category].push(sub_category)
     })
 
