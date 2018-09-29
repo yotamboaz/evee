@@ -21,6 +21,9 @@ export default class ManageEvents extends React.Component{
 
             load_events: true
         }
+        
+		console.log(this.state.id);
+		console.log(this.state.kind);
     }
 
     fetch_events = async () => {
@@ -29,8 +32,9 @@ export default class ManageEvents extends React.Component{
             api = utils.string_format('{0}/owned_by?owner_id={1}', api, this.state.id);
         }
         else{
-            api = utils.string_format('{0}/subscribe_to?owner_id={1}', api, this.state.id);
+            api = utils.string_format('{0}/subscribed_to?owner_id={1}', api, this.state.id);
         }
+        //console.log(":::::"+api);
         let tries = 0;
         var events = null;
         while(!events && tries < 3){

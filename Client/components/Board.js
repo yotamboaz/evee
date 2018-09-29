@@ -4,6 +4,7 @@ import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { StackNavigator, DrawerNavigator, createStackNavigator, createDrawerNavigator } from 'react-navigation';
 import styles from '../utils/styles';
 import EventsBoard from './EventsBoard';
+import ManageEvents from './ManageEvents';
 
 import { events as events_server_api } from '../utils/Server_api';
 import * as utils from '../utils/utils';
@@ -203,6 +204,20 @@ export default class Board extends React.Component{
                     color='green'
                     style={{height:'10%'}}
                 />
+				<TextButton 
+					title='My Events'
+                    onPress={() => this.display_owned_events(this.state.id)}
+                    titleColor='white'
+                    color='red'
+                    style={{height:'10%'}}
+                />
+				<TextButton 
+                    title='Subscribed Events'
+                    onPress={() => this.display_subscribed_events(this.state.id)}
+                    titleColor='white'
+                    color='blue'
+                    style={{height:'10%'}}
+                />
 			</View>
 		);
 	}
@@ -239,5 +254,19 @@ export default class Board extends React.Component{
         await storage_utils.removeData('user_id');
         console.log('deleted all user data');
         nav.navigate('LoginScreen');
-    }
+	}
+	
+	display_owned_events(id){
+		nav.navigate('ManageEventsScreen', {
+			id: this.state.id,
+			kind: 'owned_events'
+		});
+	}
+
+	display_subscribed_events(id){
+		nav.navigate('ManageEventsScreen', {
+			id: this.state.id,
+			kind: 'subscribed_events'
+		});
+	}
 }
