@@ -36,6 +36,7 @@ export default class Board extends React.Component{
 			events: []
 		}
 		global.id = userID;
+		global.username = userName;
 	}
 	
 	async componentDidMount(){

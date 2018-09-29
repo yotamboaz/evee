@@ -16,11 +16,14 @@ import * as utils from '../utils/utils';
 import * as location_utils from '../utils/location';
 import { formats as formats_api, events as events_api } from '../utils/Server_api';
 
+import { nav } from './navigation_pages/Login';
+
 export default class UserForm extends React.Component {
     constructor(props){
         super(props);
         this.state = {
             user_id: props.id,
+            user_name: props.username,
             form_objects: [],
             categories: {},
             selected_category: 'Default',
@@ -670,6 +673,10 @@ export default class UserForm extends React.Component {
         sent_form = await this._send_form(form);
         if(sent_form){
             Alert.alert('Created the event!');
+            nav.navigate('Board', {
+                id: this.state.user_id,
+                username: this.state.user_name,
+            });
         }
         else{
             return;
