@@ -38,7 +38,7 @@ export default class ManageEvents extends React.Component{
         var events = null;
         while(!events && tries < 3){
             events = await fetch(api)
-                           .then(response => {console.log(response); return response.json()})
+                           .then(response => response.json())
                            .then(server_response => {
                                if(server_response.status == 'success'){
                                     return server_response.events;
@@ -56,6 +56,7 @@ export default class ManageEvents extends React.Component{
                                return null
                            })
         }
+        console.log(events);
         return events;
     }
 
@@ -64,38 +65,22 @@ export default class ManageEvents extends React.Component{
             return;
         }
 
-        events = await this.fetch_events();
-
-        // TODO: remove
+        var active_events = [];
+        var events = await this.fetch_events();
         if(!events){
-            events = [
-                {
-                    id: 1,
-                    owner_id:59,
-                    name: 'test1',
-                    location: {address: 'test_address', latitude: 35.5, longitude: 35.5},
-                    date: Date.now(),
-                    fields: {
-
-                    }
-                },
-                {
-                    id: 2,
-                    owner_id:59,
-                    name: 'test2',
-                    location: {address: 'test_address', latitude: 35.5, longitude: 35.5},
-                    date: Date.now(),
-                    fields: {
-
-                    }
-                }
-            ]
+           return;
         }
 
+        events.forEach(event => {
+            if(!event.isActive)
+                return;
+            
+            active_events.push(event);
+        })
         this.setState(prev_state => {
             return {
                 id: prev_state.id,
-                events: events,
+                events: active_events,
                 kind: prev_state.kind,
                 load_events: false
             }
@@ -139,7 +124,7 @@ export default class ManageEvents extends React.Component{
     remove_cb = async (event_id) => {
         var api = events_api;
         if(this.state.kind == 'subscribed_events'){
-            api = utils.string_format('{0}/unsubscribe/?event_id={1}&owner_id={2}', api, event_id, this.state.id)
+            api = utils.string_format('{0}/unsubscribe/?event_id={1}&user_id={2}', api, event_id, this.state.id)
         }
         else{
             api = utils.string_format('{0}/close/?event_id={1}&owner_id={2}', api, event_id, this.state.id)
@@ -183,7 +168,7 @@ export default class ManageEvents extends React.Component{
         let tries = 0;
         response = false;
         while(!response && tries < 3){
-            response = await fetch(api)
+            response = await fetch(api, {method: 'PUT'})
                              .then(response => response.json())
                              .then(server_response => {
                                  if(server_response.status == 'success'){

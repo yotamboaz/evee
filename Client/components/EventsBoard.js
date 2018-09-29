@@ -22,7 +22,7 @@ export default class EventsBoard extends React.Component{
             event_kind: props.event_kind,
 
             // the event user chosed (relevant only for map view)
-            chosed_event: {},
+            chosed_event: null,
 
             // flag to indicate if should fetch events again from the server
             load_events: true,
@@ -56,7 +56,21 @@ export default class EventsBoard extends React.Component{
 
     _generate_events = (events) => {
         var chosed_event = this.state.chosed_event
-        
+        var able_to_register;
+
+        if(chosed_event == null)
+            able_to_register = false;
+        else{
+            var chosed_event_ref;
+            events.forEach(event => {
+                if(event.id == chosed_event.id)
+                    chosed_event_ref = event;
+                
+                return;
+            })
+            able_to_register = this.validate_registration_conditions(chosed_event_ref);
+        }
+
         if(this.state.event_kind == 'map'){
             var event_objects = events.map(event => {
                 var show_data = (chosed_event!=null && chosed_event.id == event.id)
@@ -64,6 +78,7 @@ export default class EventsBoard extends React.Component{
                     return <Event   key={event.id}
                                     event={event} 
                                     show_data={show_data}
+                                    able_to_register={this.validate_registration_conditions}
                                     event_kind={this.state.event_kind}
                                     chosed_event_cb={this.chosed_event_cb}
                                     register_to_event_cb={this.register_to_event} />
@@ -79,7 +94,7 @@ export default class EventsBoard extends React.Component{
 
                         {event_objects}
                     </MapView>
-                    {Platform.OS == 'android' ? <Button title='register' onPress={this.register_to_event} disabled={this.state.chosed_event==null} /> : null}
+                    {Platform.OS == 'android' ? <Button title='register' onPress={this.register_to_event} disabled={!able_to_register} /> : null}
                 </View>
         }
         else{
@@ -95,6 +110,7 @@ export default class EventsBoard extends React.Component{
                                     return  <Event  key={item.id}
                                                     event={item} 
                                                     show_data={show_data}
+                                                    able_to_register={this.validate_registration_conditions}
                                                     event_kind={this.state.event_kind}
                                                     chosed_event_cb={this.chosed_event_cb}
                                                     register_to_event_cb={this.register_to_event} />
@@ -143,7 +159,26 @@ export default class EventsBoard extends React.Component{
         }
     }
 
-    register_to_event = (event_id) => {
+    validate_registration_conditions = (event) => {
+        var can_register = true;
+
+        if(event.hasOwnProperty('subscribed_users_ids') && event.subscribed_users_ids.length){
+            for(idx in event.subscribed_users_ids){
+                if(event.subscribed_users_ids[idx] == this.state.id)
+                {
+                    can_register = false;
+                    break;
+                }
+            }
+        }
+
+        if(event.owner_id == this.state.id)
+            can_register = false;
+
+        return can_register;
+    }
+
+    register_to_event = async (event_id) => {
         if(Platform.OS == 'android'){
             // chosed_event is the one to register to.
             // no user_id recieved
@@ -153,9 +188,74 @@ export default class EventsBoard extends React.Component{
             event_to_register = event_id;
         }
         
-        // connect to the server, and upoad event_id and the user_id
+        // connect to the server, and upload event_id and the user_id
         user_id = this.state.id;
-        var register_msg_body = {event_id: event_to_register, user_id: user_id};
         console.log(utils.string_format("registering user - {0} to event - {1}",user_id, event_to_register));
+
+        let response = await this.subscribe_to_event(event_to_register);
+        if(!response){
+            return;
+        }
+
+        this.add_me_as_subscriber_to_event(event_to_register);
+    }
+
+    subscribe_to_event = async (event_id) => {
+        let tries = 0;
+        var result = false;
+
+        let api = events_server_api;
+        api = utils.string_format('{0}/subscribe?event_id={1}&user_id={2}', api, event_id, this.state.id);
+        console.log(api);
+
+        while(!result && tries < 3){
+            result = await fetch(api, {method: 'PUT'})
+                           .then(response => response.json())
+                           .then(server_response => {
+                               if(server_response == "success"){
+                                   return true;
+                               }
+                               else{
+                                   console.log('server error')
+                                   tries = 3;
+                                   Alert.alert(server_response.error);
+                                   console.log(server_response);
+                                   return false;
+                               }
+                           })
+                           .catch(error => {
+                               if(tries >=2 ){
+                                   Alert.alert('Could not register to the event. please try again')
+                               }
+                               console.log(error);
+                               tries = tries + 1;
+                               return false;
+                           })
+        }
+        console.log(result);
+        return result;
+    }
+
+
+    add_me_as_subscriber_to_event = (event_id) => {
+        var events = [];
+        this.state.events.forEach(event => {
+            if(event.id == event_id){
+                event.subscribed_users_ids.push(this.state.id);
+            }
+            events.push(event);
+            
+            return event;
+        })
+        this.setState(prev_state => {
+            return {
+                id: prev_state.id,
+                events: events,
+                event_kind: prev_state.event_kind,
+                chosed_event: prev_state.chosed_event,
+                load_events: prev_state.load_events,
+            }
+        })
+        console.log(this.state.events);
     }
 }

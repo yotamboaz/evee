@@ -15,6 +15,7 @@ export default class Event extends React.Component{
         this.state = {
             event: props.event,
             show_data: props.show_data,
+            able_to_register: props.able_to_register,
             event_kind: props.event_kind,
             chosed_event_cb: props.chosed_event_cb,
             time_stamp: null,
@@ -29,6 +30,7 @@ export default class Event extends React.Component{
                     return {
                         event: prev_state.event,
                         show_data: next_props.show_data,
+                        able_to_register: prev_state.able_to_register,
                         event_kind: prev_state.event_kind,
                         chosed_event_cb: prev_state.chosed_event_cb,
                         time_stamp: Date.now(),
@@ -44,6 +46,7 @@ export default class Event extends React.Component{
     }
 
     render(){
+        var able_to_register = this.state.able_to_register(this.state.event);
         var details = this.get_event_details(this.state.event)
         var event_details = details.map(detail =>   (<Text  key={detail}
                                                             style={{fontWeight: 'bold'}}>
@@ -75,7 +78,7 @@ export default class Event extends React.Component{
                                                  onPress={this.hide_event_data}>
                                     <View style={{backgroundColor: 'white'}}>
                                         {event_details}
-                                        {Platform.OS == 'ios' && <Button onPress={this.register_to_event} title='register' />}
+                                        {Platform.OS == 'ios' && <Button onPress={this.register_to_event} title='register' disabled={!able_to_register} />}
                                     </View>
                                 </MapView.Callout>
                 </MapView.Marker>
@@ -94,6 +97,7 @@ export default class Event extends React.Component{
                     {this.state.show_data ? event_details : null}
                     {this.state.show_data ? <TextButton  title='register'
                                                          onPress={this.register_to_event}
+                                                         disabled={!able_to_register}
                                                          key='register_button'
                                                          titleColor='black'
                                                          color='azure' /> : null}
@@ -121,7 +125,6 @@ export default class Event extends React.Component{
         else{
             date = new Date(date);
         }
-        console.log(date);
 
         details.push(utils.string_format('Event name: {0}', event.name));
         details.push(utils.string_format('Date: {0}', utils.string_format('{0}/{1}/{2}', date.getDate(), date.getMonth(), date.getFullYear())));
@@ -138,6 +141,7 @@ export default class Event extends React.Component{
                 return {
                     event: prev_state.event,
                     show_data: !prev_state.show_data,
+                    able_to_register: prev_state.able_to_register,
                     event_kind: prev_state.event_kind,
                     chosed_event_cb: prev_state.chosed_event_cb,
                     register_to_event_cb: prev_state.register_to_event_cb
@@ -153,6 +157,7 @@ export default class Event extends React.Component{
                 return {
                     event: prev_state.event,
                     show_data: !prev_state.show_data,
+                    able_to_register: prev_state.able_to_register,
                     event_kind: prev_state.event_kind,
                     chosed_event_cb: prev_state.chosed_event_cb,
                     register_to_event_cb: prev_state.register_to_event_cb

@@ -39,14 +39,52 @@ export default class Board extends React.Component{
 		global.id = userID;
 		global.username = userName;
 	}
+
+	async componentDidUpdate(prev_props){
+		if(!this.state.load_events)
+			return;
+		
+			events = await this.fetch_events();
+			if(!events){
+				return;
+			}
+	 
+			 // filter the events \\
+			 //============================= READ THIS BEFORE WORKING ON FILTER ==========================\\
+			 // need to think if filttering process should be here,                                       \\
+			 // because user might change filter options, and refetching                                  \\
+			 // events each time user change filter is not scalable, and not officiant.                   \\
+			 // maybe add filtered_events to state, and present them if user chosed filter options.       \\
+			 //===========================================================================================\\
+			 //																							 \\
+			 //  filtered_events = this.filter_events(events)											 \\
+			 //===========================================================================================\\
+
+			 this.setState(prev_state => {
+				return {
+					id: prev_state.id,
+					username: prev_state.username,
+					isLoading: false,
+					aroundMeButtonOpacity: prev_state.aroundMeButtonOpacity,
+					boardButtonOpacity: prev_state.boardButtonOpacity,
+					menuActive: prev_state.menuActive,
+					menuOpacity: prev_state.menuOpacity,
+					event_kind: prev_state.event_kind,
+					load_events: false,
+					events: events
+				}
+			})
+	}
 	
 	async componentDidMount(){
         if(!this.state.load_events){
             return
         }
         
-       events = await this.fetch_events()
-       console.log(events);
+	   events = await this.fetch_events()
+	   if(!events){
+		   return;
+	   }
 
         // filter the events \\
         //============================= READ THIS BEFORE WORKING ON FILTER ==========================\\
@@ -55,7 +93,9 @@ export default class Board extends React.Component{
         // events each time user change filter is not scalable, and not officiant.                   \\
         // maybe add filtered_events to state, and present them if user chosed filter options.       \\
         //===========================================================================================\\
-        // events = this.filter_events(events)
+		//																							 \\
+		//  filtered_events = this.filter_events(events)											 \\
+		//===========================================================================================\\
 
         this.setState(prev_state => {
             return {
@@ -149,6 +189,12 @@ export default class Board extends React.Component{
                     <EventsBoard id={this.state.id} events={this.state.events} event_kind={this.state.event_kind}/>
                 </View>
 				<View style={styles.bottomContent}>
+					<TouchableHighlight onPress={() => {this.setState({load_events: true})}}>
+						<Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
+							Refresh Board
+						</Text>
+					</TouchableHighlight>
+					{utils.render_separator()}
 					<TouchableHighlight onPress={() => nav.navigate('NewEventScreen')}>
 						<Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
 							New Event
