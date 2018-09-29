@@ -17,8 +17,23 @@ export default class Categories extends React.Component {
             on_sub_category_changed: props.on_sub_category_changed,
         }
     }
+
+    componentDidUpdate(prev_props){
+        if(prev_props.categories != this.props.categories){
+            this.setState(prev_state => {
+                return {
+                    selected_category: this.props.selected_category,
+                    selected_sub_category: this.props.selected_sub_category,
+                    categories: this.props.categories,
+                    on_category_changed: prev_props.on_category_changed,
+                    on_sub_category_changed: prev_props.on_sub_category_changed
+                }
+            })
+        }
+    }
     
     render() {
+        console.log(this.state.categories)
         let categories= Object.keys(this.state.categories).map(item => {
             // return <Picker.Item label={item} value={item} key={item} />
             return {value: item}
