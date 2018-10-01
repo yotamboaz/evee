@@ -14,7 +14,6 @@ const styles = StyleSheet.create({
     loginPage: {
         flexDirection: 'column',
         padding: 10,
-        justifyContent: 'space-between'
     },
     insertNameLine: {
         flexDirection: 'row',
@@ -58,6 +57,24 @@ const styles = StyleSheet.create({
     CategoryPicker: {
         alignSelf: 'stretch',
     },
+    userMenuButton: {
+        backgroundColor: '#77c8ce',
+        height: '10%',
+        margin: 10,
+        borderRadius: 10
+    },
+    filterMenuButton: {
+        backgroundColor: '#77c8ce',
+        height: '30%',
+        margin: 10,
+        borderRadius: 10
+    },
+    newEventButton: {
+        backgroundColor: '#77c8ce',
+        height: '40%',
+        margin: 5,
+        borderRadius: 10
+    }
 });
 
 module.exports = styles;
