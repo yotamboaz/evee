@@ -252,17 +252,22 @@ export default class Board extends React.Component{
                     <EventsBoard id={this.state.id} events={this.state.filteredEvents} event_kind={this.state.event_kind}/>
                 </View>
 				<View style={styles.bottomContent}>
-					<TouchableHighlight onPress={() => {this.setState({load_events: true})}}>
+					<TouchableHighlight onPress={() => {this.setState({load_events: true})}} underlayColor={'transparent'}>
 						<Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
-							Refresh Board
+						<FontAwesome name="refresh" size={24} />
 						</Text>
 					</TouchableHighlight>
-					{utils.render_separator()}
-					<TouchableHighlight onPress={() => nav.navigate('NewEventScreen')}>
+					{/* <TouchableHighlight onPress={() => nav.navigate('NewEventScreen')}>
 						<Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
 							New Event
 						</Text>
-					</TouchableHighlight>
+					</TouchableHighlight> */}
+					<TextButton 
+						title='New Event'
+						onPress={() => nav.navigate('NewEventScreen')}
+						titleColor='white'
+						style={styles.newEventButton}						
+					/>
                 </View>
 			</View>
         )
@@ -303,30 +308,34 @@ export default class Board extends React.Component{
 						</TouchableHighlight>
 					</View>
 				</View>
-                <Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
-                    {this.state.username}
-                </Text>
-                <TextButton 
-                    title='Logout'
-                    onPress={this._delete_user}
-                    titleColor='white'
-                    color='green'
-                    style={{height:'10%'}}
-                />
-				<TextButton 
-					title='My Events'
-                    onPress={() => this.display_owned_events(this.state.id)}
-                    titleColor='white'
-                    color='red'
-                    style={{height:'10%'}}
-                />
-				<TextButton 
-                    title='Subscribed Events'
-                    onPress={() => this.display_subscribed_events(this.state.id)}
-                    titleColor='white'
-                    color='blue'
-                    style={{height:'10%'}}
-                />
+                <View style={{ flex: 0.8 }}>
+					<Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
+						{this.state.username}
+					</Text>
+					<TextButton 
+						title='My Events'
+						onPress={() => this.display_owned_events(this.state.id)}
+						titleColor='white'
+						style={styles.userMenuButton}
+					/>
+					<TextButton 
+						title='Subscribed Events'
+						onPress={() => this.display_subscribed_events(this.state.id)}
+						titleColor='white'
+						style={styles.userMenuButton}
+					/>
+					<TextButton 
+						title='Logout'
+						onPress={this._delete_user}
+						titleColor='white'
+						style={styles.userMenuButton}						
+					/>
+				</View>
+				<View style={{ flex: 0.1 }}>
+					<Text style={{margin: 5, fontSize: 10, textAlign: 'center', color: '#77c8ce'}}>
+						All rights reserved to Yotam Boaz, Gal Rotenberg & Roy Koren, 2018
+					</Text>
+				</View>
 			</View>
 		);
 	}
@@ -366,32 +375,34 @@ export default class Board extends React.Component{
 						</TouchableHighlight>
 					</View>
 				</View>
-				<Categories
-					selected_category={this.state.filterSettings.category}
-					selected_sub_category={this.state.filterSettings.sub_category}
-					categories={this.state.categories}
-					on_category_changed={this.on_category_changed}
-					on_sub_category_changed={this.on_sub_category_changed}
-				/> 
-				<TextButton 
-                    title='Activate Filters'
-                    onPress={() => this.setState({
-						filterSettings: {active: true, category: this.state.current_form.category, sub_category: this.state.current_form.sub_category}						
-					})}
-                    titleColor='white'
-                    color='blue'
-                    style={{height:'10%'}}
-                />
-				<TextButton 
-                    title='Display All Events'
-                    onPress={() => this.setState({
-						filteredEvents: this.state.events,
-						filterSettings: {active: false, category: 'Default', sub_category: 'Default'}
-					})}
-                    titleColor='white'
-                    color='red'
-                    style={{height:'10%'}}
-                />
+				<View style={{flex:0.6}}>
+					<Categories
+						selected_category={this.state.filterSettings.category}
+						selected_sub_category={this.state.filterSettings.sub_category}
+						categories={this.state.categories}
+						on_category_changed={this.on_category_changed}
+						on_sub_category_changed={this.on_sub_category_changed}
+					/> 
+				</View>
+				<View style={{flex:0.3}}>				
+					<TextButton 
+						title='Activate Filters'
+						onPress={() => this.setState({
+							filterSettings: {active: true, category: this.state.current_form.category, sub_category: this.state.current_form.sub_category}						
+						})}
+						titleColor='white'
+						style={styles.filterMenuButton}
+					/>
+					<TextButton 
+						title='Display All Events'
+						onPress={() => this.setState({
+							filteredEvents: this.state.events,
+							filterSettings: {active: false, category: 'Default', sub_category: 'Default'}
+						})}
+						titleColor='white'
+						style={styles.filterMenuButton}						
+					/>
+				</View>
 			</View>
 		);
 	}
