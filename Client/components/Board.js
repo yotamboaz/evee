@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, ActivityIndicator, Button, ListView, FlatList, Text, Alert, StyleSheet, TouchableHighlight, InteractionManager, Platform, BackHandler, ToastAndroid} from 'react-native';
-import { Ionicons, FontAwesome } from '@expo/vector-icons';
-import { StackNavigator, DrawerNavigator, createStackNavigator, createDrawerNavigator } from 'react-navigation';
+import { View, Text, Alert, TouchableHighlight, BackHandler, ToastAndroid} from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+
 import styles from '../utils/styles';
 import EventsBoard from './EventsBoard';
-import ManageEvents from './ManageEvents';
 import Categories from './Categories';
 import AppTitle from './AppTitle';
+import ClosedEvents from './ClosedEvents';
 
 import { events as events_server_api } from '../utils/Server_api';
 import { formats as formats_api, events as events_api } from '../utils/Server_api';
@@ -52,6 +52,7 @@ export default class Board extends React.Component{
             field_values: {},
             invalid_fields: {},
             registered_fields: ['Event Name'],
+			closed_events: null,
 		}
 		global.id = userID;
 		global.username = userName;
@@ -136,18 +137,18 @@ export default class Board extends React.Component{
                 categories: categories,
             }
         })
+        
+	   events = await this.fetch_events()
+	   if(!events){
+		   events = [];
+	   }
 
-        // filter the events \\
-        //============================= READ THIS BEFORE WORKING ON FILTER ==========================\\
-        // need to think if filttering process should be here,                                       \\
-        // because user might change filter options, and refetching                                  \\
-        // events each time user change filter is not scalable, and not officiant.                   \\
-        // maybe add filtered_events to state, and present them if user chosed filter options.       \\
-        //===========================================================================================\\
-		//																							 \\
-		//  filtered_events = this.filter_events(events)											 \\
-		//===========================================================================================\\
-
+	   // informing the user about subscribed events that got closed
+		var closed_events = this.fetch_closed_events();
+		if(!closed_events){
+			closed_events = null;
+		}
+			
         this.setState(prev_state => {
             return {
                 id: prev_state.id,
@@ -160,7 +161,8 @@ export default class Board extends React.Component{
 				event_kind: prev_state.event_kind,
 				load_events: false,
 				events: events,
-				filteredEvents: filteredEvents
+				filteredEvents: filteredEvents,
+				closed_events: closed_events
             }
         });
 	}
@@ -267,6 +269,10 @@ export default class Board extends React.Component{
 					</View>
 				</View>
                 <View style={styles.mainContent}>
+					{/* Closed events */}
+					{this.state.closed_events ? <ClosedEvents events={this.state.closed_events}
+															  close_modal={() => this.setState({closed_events: null})} />:null}
+					{/* Events Board */}
                     <EventsBoard id={this.state.id} events={this.state.filteredEvents} event_kind={this.state.event_kind}/>
                 </View>
 				<View style={styles.bottomContent}>
@@ -275,11 +281,6 @@ export default class Board extends React.Component{
 						<FontAwesome name="refresh" size={24} />
 						</Text>
 					</TouchableHighlight>
-					{/* <TouchableHighlight onPress={() => nav.navigate('NewEventScreen')}>
-						<Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
-							New Event
-						</Text>
-					</TouchableHighlight> */}
 					<TextButton 
 						title='New Event'
 						onPress={() => nav.navigate('NewEventScreen')}
@@ -581,6 +582,111 @@ export default class Board extends React.Component{
                 }
 		})
     }
+
+	fetch_closed_events = async () => {
+		//pull closed events that the user subscribed to.
+		let api = utils.string_format('{0}/closed?user_id={1}', events_api, this.state.id);
+
+		closed_events = await fetch(api)
+							  .then(response => response.json())
+							  .then(server_response => {
+								  if(server_response.status == 'success'){
+									  return server_response.events;
+								  }
+								  else{
+									  console.log('error accured while fetching closed_Events from server');
+									  console.log(server_response.error);
+									  return null;
+								  }
+							  })
+							  .catch(error => {
+								  console.log('internal error');
+								  console.log(error);
+								  return null;
+							  })
+		if(closed_events && closed_events.length > 0)
+			return closed_events;
+
+		events = [
+			{
+				id: 112,
+				name: "Tennis",
+				category: "Sports & Fitness",
+				location: {
+					address: "Yoav 20 ramat gan",
+					latitude: 32.068424,
+					longitude: 34.824785
+				},
+				isActive: true,
+				fields: {
+					'Required accessories/equipment': "None",
+					'address': "Yoav 20 ramat gan",
+					'Event Name': "Tennis",
+					'Type of field': "Outdoor, asphalt"
+				},
+				owner_id: 111,
+				sub_category: "Ball Games",
+				raw_date: 1537684156244,
+				max_num_of_participants: 3,
+				current_num_of_participants: 2,
+				subscribed_users: [
+					{
+						id: 116,
+						username: "user3",
+						email: "user3@gmail.com"
+					},
+					{
+						id: 144,
+						username: null,
+						email: "galrotenberg3@gmail.com"
+					}
+				],
+				subscribed_users_ids: [
+					116,
+					144
+				]
+			},
+			{
+				id: 145,
+				name: "אירוע בדיקה 2",
+				category: "Default",
+				location: {
+					address: "הפודים 11 רמת גן",
+					latitude: 32.0916274,
+					longitude: 34.8176193
+				},
+				isActive: true,
+				fields: {
+					"Event Name": "אירוע בדיקה 2",
+					"address": "הפודים 11 רמת גן"
+				},
+				owner_id: 143,
+				sub_category: "Default",
+				raw_date: 1538232240000,
+				max_num_of_participants: 4,
+				current_num_of_participants: 1,
+				subscribed_users: [
+					{
+						id: 144,
+						username: null,
+						email: "galrotenberg3@gmail.com"
+					}
+				],
+				subscribed_users_ids: [
+					144
+				]
+			},
+		]
+		return events;
+	}
+	
+	inform_with_closed_events = (closed_events) => {
+		var event_references = closed_events.forEach(event => {
+			return {text: event.name, onPress: () => this.setState({closed_event: event})}
+		})
+
+		return event_references;
+	}
 
     _delete_user = async () => {
         await storage_utils.removeData('user_id');

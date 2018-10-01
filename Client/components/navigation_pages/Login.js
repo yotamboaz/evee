@@ -271,6 +271,7 @@ export default class Login extends Component{
                             return String(server_response.user.id);
                         }
                         else{
+                            console.log('server failed')
                             tries = 5
                             Alert.alert(server_response.error);
                             return null;

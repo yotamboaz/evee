@@ -11,12 +11,6 @@ const DatePicker = (props) => {
     return(
         <View>
             <Button onPress={props.on_date_pick} color='#77c8ce' title='Choose date' />
-            {/* <TextButton 
-                title='Choose Date'
-                onPress={props.on_date_pick}
-                titleColor='white'
-                style={styles.userMenuButton}						
-            /> */}
             <DateTimePicker
             mode='datetime'
             isVisible={is_visible}

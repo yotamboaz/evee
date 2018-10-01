@@ -134,7 +134,7 @@ export default class Event extends React.Component{
         }
 
         details.push(utils.string_format('Event name: {0}', event.name));
-        details.push(utils.string_format('Date: {0}', utils.string_format('{0}/{1}/{2}', date.getDate(), date.getMonth(), date.getFullYear())));
+        details.push(utils.string_format('Date: {0}', utils.string_format('{0}/{1}/{2}', date.getDate(), date.getMonth()+1, date.getFullYear())));
         details.push(utils.string_format('Time: {0}:{1}', date.getHours(), date.getMinutes()));
         Object.keys(event.fields).forEach(key => {details.push(utils.string_format('{0}: {1}', key, event.fields[key]))})
         details.push(utils.string_format('Event Subscribers: {0}', event.current_num_of_participants))

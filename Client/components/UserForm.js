@@ -674,7 +674,10 @@ export default class UserForm extends React.Component {
         form['sub_category'] = this.state.selected_sub_category ? this.state.selected_sub_category : 'Default'
         form['location'] = this.state.location;
         form['raw_date'] = this.state.date.getTime();
+        // extracting the event name, and delete it
         form['name'] = this.state.field_values['Event Name'];
+        delete this.state.field_values['Event Name'];
+
         form['max_num_of_participants'] = this.state.max_num_of_participants ? this.state.max_num_of_participants : 0;
         form['fields'] = {}
         for(var key in fields){
