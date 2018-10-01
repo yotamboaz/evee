@@ -124,7 +124,13 @@ export default class Login extends Component{
     }
 
     facebook_login = async () => {
-        details = await facebook_api.logIn()
+        var details = await facebook_api.logIn()
+        var token = details.token;
+        var user_facebook_id = details.id;
+
+        var deleted_user = await facebook_api.logOut(token, user_facebook_id);
+        console.log(utils.string_format('managed to delete user facebook auth - {0}', deleted_user));
+
         if(details.cancel){
             Alert.alert('Canceled connection with facebook account')
             return
