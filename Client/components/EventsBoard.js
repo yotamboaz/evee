@@ -212,14 +212,13 @@ export default class EventsBoard extends React.Component{
             result = await fetch(api, {method: 'PUT'})
                            .then(response => response.json())
                            .then(server_response => {
-                               if(server_response == "success"){
+                               if(server_response.response == "success"){
                                    return true;
                                }
                                else{
                                    console.log('server error')
                                    tries = 3;
                                    Alert.alert(server_response.error);
-                                   console.log(server_response);
                                    return false;
                                }
                            })
