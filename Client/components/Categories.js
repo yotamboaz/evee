@@ -33,7 +33,6 @@ export default class Categories extends React.Component {
     }
     
     render() {
-        console.log(this.state.categories)
         let categories= Object.keys(this.state.categories).map(item => {
             // return <Picker.Item label={item} value={item} key={item} />
             return {value: item}

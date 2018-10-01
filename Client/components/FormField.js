@@ -13,17 +13,18 @@ const FormField = (props) => {
     console.log(props)
     var field = null;
     var _on_value_changed = null
-    
+    var name = props.is_required ? utils.string_format('{0} *', props.name) : props.name
+
     if(props.type == 'combo-box'){
         var sub_fields = props.box_strings.map(item => {
             return {value: item};
         })
-        field = <Dropdown label={props.name}
+        field = <Dropdown label={name}
                           data={sub_fields}
                           onChangeText={(value) => props.on_value_changed(props.name, value)} />
     }
     else if(props.type == 'string'){
-        field =  <TextField label={props.name}
+        field =  <TextField label={name}
                             value={props.current_value}
                             onSubmitEditing={(value_event) => props.on_value_changed(props.name, value_event.nativeEvent.text)} />
     }
@@ -45,7 +46,7 @@ const FormField = (props) => {
             props.on_value_changed(props.name, value);
         }
 
-        field = <TextField label={props.name}
+        field = <TextField label={name}
                             value={props.current_value}
                             onSubmitEditing={field_changed} />
     }

@@ -125,7 +125,7 @@ export default class UserForm extends React.Component {
                 {marker}
                 </MapView>
                 <ScrollView>
-                    <TextField label='Address'
+                    <TextField label='Address *'
                                 value={this.state.location['address']} 
                                 onSubmitEditing={address_event => this.on_address_picked(address_event.nativeEvent.text)} />
 
@@ -135,7 +135,7 @@ export default class UserForm extends React.Component {
                                 on_category_changed={this.on_category_changed}
                                 on_sub_category_changed={this.on_sub_category_changed} /> 
 
-                    <TextField label='Event Name'
+                    <TextField label='Event Name *'
                                 value={this.state.field_values['event_name']}
                                 onChangeText={name => {this.on_form_field_changed('Event Name', name)}} />
 
@@ -170,19 +170,21 @@ export default class UserForm extends React.Component {
         var form_fields
         
         this.state.form_objects.forEach(form_obj => {
-            if(form_obj.category != this.state.current_form.category || form_obj.subCategory != this.state.current_form.sub_category){
+            if(form_obj.category != this.state.current_form.category || form_obj.sub_category != this.state.current_form.sub_category){
                 return;
             }
-            let registered_fields = this.state.registered_fields
+            console.log('render fields');
+            var registered_fields = this.state.registered_fields
             registering_fields = []
             form_fields = form_obj.fields.map(field => {
-                if(!registered_fields.indexOf(field.name)){
+                if(field.is_required && !registered_fields.indexOf(field.name)){
                     registering_fields.push(field_name)
                     console.log('registered field')
                 }
 
                 return <FormField   key={field.name}
                                     name={field.name}
+                                    is_required={field.is_required}
                                     description={field.description}
                                     type={field.type}
                                     max_value={field.maxValue}
