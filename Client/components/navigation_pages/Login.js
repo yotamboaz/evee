@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { View, Alert } from 'react-native';
+import { View, Alert, Text } from 'react-native';
 
 import Loading from '../Loading';
 import * as utils from '../../utils/utils';
@@ -40,30 +40,30 @@ export default class Login extends Component{
         console.log(this.state)
         return(
             <View style={styles.wholeApp}>
-
                 <Loading loading={this.state.is_loading} />
-
-                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{marginTop: 15, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
+                    Welcome to Evee!
+                </Text>
+                <View style={{flex:1, width:'100%' }}>                
                     <View style={styles.loginPage}>
-
                         <TextButton onPress={this.facebook_login}
-                            title='Facebook'
+                            title='Login with Facebook'
                             titleColor='white'
                             color='blue'
-                            style={{height:'10%'}} />
-
+                            style={{height:'20%', padding: 10, margin: 10, borderRadius: 10}}
+                        />
                         <TextButton onPress={this.google_login}
-                                            title='Google'
-                                            titleColor='white'
-                                            color='red'
-                                            style={{height:'10%'}} />
-
-                         <TextButton title='Logout'
-                            onPress={this._delete_user}
+                            title='Login with Google'
+                            titleColor='white'
+                            color='red'
+                            style={{height:'20%', padding: 10, margin: 10, borderRadius: 10}}
+                        />
+                         {/* <TextButton onPress={this._delete_user}
+                            title='Logout'
                             titleColor='white'
                             color='green'
-                            style={{height:'10%'}} />
-
+                            style={{height:'20%', padding: 10, margin: 10}}                            
+                        /> */}
                     </View>
                 </View>
             </View>
