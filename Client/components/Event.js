@@ -49,7 +49,7 @@ export default class Event extends React.Component{
         var able_to_register = this.state.able_to_register(this.state.event);
         var details = this.get_event_details(this.state.event)
         var event_details = details.map(detail =>   (<Text  key={detail}
-                                                            style={{fontWeight: 'bold'}}>
+                                                            style={{fontWeight: 'bold', padding: 3}}>
                                                         {detail}
                                                     </Text>));
         if(this.state.event_kind == 'map'){
@@ -89,11 +89,18 @@ export default class Event extends React.Component{
                 console.log(utils.string_format('showing event - {0}\n================\n{1}', this.state.event.id, details));
 
             return (
-                <View key={this.state.event.id} style={{borderColor: 'black',
-                                                        backgroundColor: 'azure',
-                                                        justifyContent:'space-between',
-                                                        alignContent: 'stretch'}}>
-                    <Button onPress={this.chosed_event} title={this.state.event.name} key='event_button' />
+                // <View key={this.state.event.id} style={{borderColor: 'black',
+                //                                         backgroundColor: 'azure',
+                //                                         justifyContent:'space-between',
+                //                                         alignContent: 'stretch'}}>
+                <View key={this.state.event.id}>
+                    {/* <Button onPress={this.chosed_event} title={this.state.event.name} key='event_button'/> */}
+                    <TextButton 
+						title={this.state.event.name}
+						onPress={this.chosed_event}
+						titleColor='white'
+						style={{backgroundColor: '#77c8ce', borderRadius: 10, margin: 5}}						
+					/>
                     {this.state.show_data ? event_details : null}
                     {this.state.show_data ? <TextButton  title='register'
                                                          onPress={this.register_to_event}

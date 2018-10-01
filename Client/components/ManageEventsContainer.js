@@ -30,16 +30,16 @@ export default class ManageEventsContainer extends React.Component{
     render(){
 		return(
 			<View style={styles.wholeApp}>
-				<View>
-                    <TouchableHighlight onPress={() => nav.navigate("Board")} underlayColor={'transparent'}>
-                        <Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
-                        Return
-                        </Text>
-                    </TouchableHighlight>
-				</View>
                 <View style={{flex: 0.9}}>
                     <ManageEvents id={this.state.id} kind={this.state.kind}/>
                 </View>
+                <View style={{flex: 0.1}}>                
+                    <TouchableHighlight onPress={() => nav.navigate("Board")} underlayColor={'transparent'}>
+                        <Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
+                        Back to main screen
+                        </Text>
+                    </TouchableHighlight>
+				</View>
 			</View>
 		);
 	}

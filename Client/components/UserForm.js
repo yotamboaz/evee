@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View, Button, Text, Alert } from 'react-native';
+import { ScrollView, View, Button, Text, Alert, TouchableHighlight } from 'react-native';
 
 // MapView ref - https://github.com/react-community/react-native-maps
 //import MapView from 'react-native-maps';
@@ -8,6 +8,7 @@ import { MapView } from 'expo';
 // TextField ref - https://github.com/n4kz/react-native-material-textfield#properties
 import { TextField } from 'react-native-material-textfield';
 
+import styles from '../utils/styles';
 import Categories from './Categories';
 import DataMark from './DataMark';
 import FormField from './FormField';
@@ -112,57 +113,65 @@ export default class UserForm extends React.Component {
         var marker = this._get_marker(this.state.location)
 
         return(
-            //contentContainerStyle={{flex: 1}}
-            <View style={{flexDirection: 'column'}}>
-                <MapView
-                    style={{ flex: 1, width: 300 }}
-                    initialRegion={location_utils.get_current_location()}
-                    showsUserLocation={true}
-                    followUserLocation={true}
-                    onLongPress={e => {
-                                        this.on_location_pick(e.nativeEvent)
-                                       }} >
-                {marker}
-                </MapView>
-                <ScrollView>
-                    <TextField label='Address *'
-                                value={this.state.location['address']} 
-                                onSubmitEditing={address_event => this.on_address_picked(address_event.nativeEvent.text)} />
+            <View style={styles.wholeApp}>
+                <View style={{flex: 0.3, width:'100%'}}>
+                    <MapView
+                        style={{ flex: 1, margin: 10 }}
+                        initialRegion={location_utils.get_current_location()}
+                        showsUserLocation={true}
+                        followUserLocation={true}
+                        onLongPress={e => { this.on_location_pick(e.nativeEvent) }} >
+                        {marker}
+                    </MapView>
+                </View>
+                <View style={{flex: 0.6, margin: 10, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
+                    <ScrollView>
+                        <TextField label='Address'
+                                    value={this.state.location['address']} 
+                                    onSubmitEditing={address_event => this.on_address_picked(address_event.nativeEvent.text)} />
 
-                    <Categories selected_category={this.state.selected_category}
-                                selected_sub_category={this.state.selected_sub_category}
-                                categories={this.state.categories}
-                                on_category_changed={this.on_category_changed}
-                                on_sub_category_changed={this.on_sub_category_changed} /> 
+                        <Categories selected_category={this.state.selected_category}
+                                    selected_sub_category={this.state.selected_sub_category}
+                                    categories={this.state.categories}
+                                    on_category_changed={this.on_category_changed}
+                                    on_sub_category_changed={this.on_sub_category_changed} /> 
 
-                    <TextField label='Event Name *'
-                                value={this.state.field_values['event_name']}
-                                onChangeText={name => {this.on_form_field_changed('Event Name', name)}} />
+                        <TextField label='Event Name'
+                                    value={this.state.field_values['event_name']}
+                                    onChangeText={name => {this.on_form_field_changed('Event Name', name)}} />
 
-                    {form_fields}
-                    
-                    <TextField label='Restrict Participants' 
-                                value={this.state.max_num_of_participants ? this.state.max_num_of_participants : ''}
-                                onSubmitEditing={user_restriction => this.on_participants_restriction(user_restriction.nativeEvent.text)} />
-                    <DataMark mark='?' data='optional field, to restrict the event group size' />
+                        {form_fields}
+                        
+                        <TextField label='Restrict Participants' 
+                                    value={this.state.max_num_of_participants ? this.state.max_num_of_participants : ''}
+                                    onSubmitEditing={user_restriction => this.on_participants_restriction(user_restriction.nativeEvent.text)} />
+                        <DataMark mark='?' data='optional field, to restrict the event group size' />
 
-                    <TextField label='info'
-                            multiline={true}
-                            value={this.state.field_values['info']}
-                            onSubmitEditing={info_event => {this.on_form_field_changed('info', info_event.nativeEvent.text)}} />
+                        <TextField label='info'
+                                multiline={true}
+                                value={this.state.field_values['info']}
+                                onSubmitEditing={info_event => {this.on_form_field_changed('info', info_event.nativeEvent.text)}} />
 
-                    <DatePicker on_date_pick={this.on_date_pick}
-                                show_date={this.state.show_date}
-                                confirm_date={this.confirm_date}
-                                cancel_date={this.cancel_date} />
-                    {this.state.date!=null && (<View>
-                                            <Text>{this.state.date.toDateString()}</Text>
-                                            <Text>{utils.string_format('{0}:{1}', this.state.date.getHours(), this.state.date.getMinutes())}</Text>
-                                            </View>)}
+                        <DatePicker on_date_pick={this.on_date_pick}
+                                    show_date={this.state.show_date}
+                                    confirm_date={this.confirm_date}
+                                    cancel_date={this.cancel_date} />
+                        {this.state.date!=null && (<View>
+                                                <Text>{this.state.date.toDateString()}</Text>
+                                                <Text>{utils.string_format('{0}:{1}', this.state.date.getHours(), this.state.date.getMinutes())}</Text>
+                                                </View>)}
 
-                    <Button title='Submit' onPress={this.submit_form} />
-                </ScrollView>
-            </View>
+                        <Button title='Submit' onPress={this.submit_form} />
+                    </ScrollView>
+                </View>                
+                <View style={{flex: 0.1}}>                
+                    <TouchableHighlight onPress={() => nav.navigate("Board")} underlayColor={'transparent'}>
+                        <Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
+                        Back to main screen
+                        </Text>
+                    </TouchableHighlight>
+				</View>
+			</View>
         );
     }
 
