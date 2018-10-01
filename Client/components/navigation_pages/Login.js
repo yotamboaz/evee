@@ -146,7 +146,7 @@ export default class Login extends Component{
             }
         })
         
-        var user = {name: details.name, email: details.email}
+        var user = {username: details.name, email: details.email}
 
         //fetch id from our server
         var id = await this._pull_user_from_server(user)
@@ -198,7 +198,7 @@ export default class Login extends Component{
             }
         })
 
-        var user = {name: String(details.name), email: String(details.email)}
+        var user = {username: String(details.name), email: String(details.email)}
 
         //fetch id from our server
         var id = await this._pull_user_from_server(user)
@@ -261,6 +261,7 @@ export default class Login extends Component{
                             return String(server_response.user.id);
                         }
                         else{
+                            console.log('server failed')
                             tries = 5
                             Alert.alert(server_response.error);
                             return null;
@@ -284,7 +285,7 @@ export default class Login extends Component{
         while(!result && tries < 5){
             console.log(utils.string_format('try #{0}',tries))
             set_id = await storage_utils.setData('user_id', user.id, tries)
-            set_name = await storage_utils.setData('user_name', user.name, tries)
+            set_name = await storage_utils.setData('user_name', user.username, tries)
             set_email = await storage_utils.setData('user_email', user.email, tries)
             result = set_id && set_name && set_email;
             tries = tries + 1;

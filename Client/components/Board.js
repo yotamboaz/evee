@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, ActivityIndicator, Button, ListView, FlatList, Text, Alert, StyleSheet, TouchableHighlight, InteractionManager, Platform } from 'react-native';
+import { View, Text, Alert, TouchableHighlight } from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
-import { StackNavigator, DrawerNavigator, createStackNavigator, createDrawerNavigator } from 'react-navigation';
+
 import styles from '../utils/styles';
 import EventsBoard from './EventsBoard';
-import ManageEvents from './ManageEvents';
+import ClosedEvents from './ClosedEvents';
 
 import { events as events_server_api } from '../utils/Server_api';
 import * as utils from '../utils/utils';
@@ -34,7 +34,13 @@ export default class Board extends React.Component{
 			// flag to indicate if should fetch events again from the server
 			load_events: true,
 			// the public events
-			events: []
+			events: [],
+			closed_events: null,
+			// closed_events_alert: {
+			// 						title: 'Subscribed events that were removed:',
+			// 						msg: 'Some of the event that you have subscribed to, were cancelled.',
+			// 						buttons: []
+			// 					  }
 		}
 		global.id = userID;
 		global.username = userName;
@@ -83,8 +89,23 @@ export default class Board extends React.Component{
         
 	   events = await this.fetch_events()
 	   if(!events){
-		   return;
+		   events = [];
 	   }
+
+	   // informing the user about subscribed events that got closed
+		var closed_events = this.fetch_closed_events();
+		if(!closed_events){
+			closed_events = null;
+		}
+		// buttons = []
+		// closed_events.forEach(event => {
+		// 	buttons.push({text: event.name, onPress: () => {this.setState({closed_event: event})}})
+		// })
+		// buttons.push({text: 'OK', onPress:() => {}})
+
+		// Alert.alert(this.state.closed_events_alert.title,
+		// 			this.state.closed_events_alert.msg,
+		// 			buttons);
 
         // filter the events \\
         //============================= READ THIS BEFORE WORKING ON FILTER ==========================\\
@@ -96,7 +117,10 @@ export default class Board extends React.Component{
 		//																							 \\
 		//  filtered_events = this.filter_events(events)											 \\
 		//===========================================================================================\\
-
+		// var closed_events_alert = this.state.closed_events_alert;
+		// if(closed_events)
+		// 	closed_events_alert['buttons'] = buttons;
+			
         this.setState(prev_state => {
             return {
                 id: prev_state.id,
@@ -108,10 +132,10 @@ export default class Board extends React.Component{
 				menuOpacity: prev_state.menuOpacity,
 				event_kind: prev_state.event_kind,
 				load_events: false,
-				events: events
+				events: events,
+				closed_events: closed_events
             }
-        })
-        
+		})
     }
 
     boardButton() {
@@ -186,6 +210,11 @@ export default class Board extends React.Component{
 					</View>
 				</View>
                 <View style={styles.mainContent}>
+					{this.state.closed_events ? <ClosedEvents events={this.state.closed_events}
+															  close_modal={() => this.setState({closed_events: null})} />:null}
+															{/* //  title={this.state.closed_events_alert.title}
+															//  msg={this.state.closed_events_alert.msg}
+															//  buttons={this.state.closed_events_alert.buttons} /> : null} */}
                     <EventsBoard id={this.state.id} events={this.state.events} event_kind={this.state.event_kind}/>
                 </View>
 				<View style={styles.bottomContent}>
@@ -292,7 +321,90 @@ export default class Board extends React.Component{
             tries = tries + 1;
         }
         return events
-    }
+	}
+
+	fetch_closed_events = () => {
+		//pull closed events that the user subscribed to.
+		events = [
+			{
+				id: 112,
+				name: "Tennis",
+				category: "Sports & Fitness",
+				location: {
+					address: "Yoav 20 ramat gan",
+					latitude: 32.068424,
+					longitude: 34.824785
+				},
+				isActive: true,
+				fields: {
+					'Required accessories/equipment': "None",
+					'address': "Yoav 20 ramat gan",
+					'Event Name': "Tennis",
+					'Type of field': "Outdoor, asphalt"
+				},
+				owner_id: 111,
+				sub_category: "Ball Games",
+				raw_date: 1537684156244,
+				max_num_of_participants: 3,
+				current_num_of_participants: 2,
+				subscribed_users: [
+					{
+						id: 116,
+						username: "user3",
+						email: "user3@gmail.com"
+					},
+					{
+						id: 144,
+						username: null,
+						email: "galrotenberg3@gmail.com"
+					}
+				],
+				subscribed_users_ids: [
+					116,
+					144
+				]
+			},
+			{
+				id: 145,
+				name: "אירוע בדיקה 2",
+				category: "Default",
+				location: {
+					address: "הפודים 11 רמת גן",
+					latitude: 32.0916274,
+					longitude: 34.8176193
+				},
+				isActive: true,
+				fields: {
+					"Event Name": "אירוע בדיקה 2",
+					"address": "הפודים 11 רמת גן"
+				},
+				owner_id: 143,
+				sub_category: "Default",
+				raw_date: 1538232240000,
+				max_num_of_participants: 4,
+				current_num_of_participants: 1,
+				subscribed_users: [
+					{
+						id: 144,
+						username: null,
+						email: "galrotenberg3@gmail.com"
+					}
+				],
+				subscribed_users_ids: [
+					144
+				]
+			},
+		]
+		return events;
+	}
+	
+	inform_with_closed_events = (closed_events) => {
+		var event_references = closed_events.forEach(event => {
+			return {text: event.name, onPress: () => this.setState({closed_event: event})}
+		})
+
+		return event_references;
+	}
 
     _delete_user = async () => {
         await storage_utils.removeData('user_id');
