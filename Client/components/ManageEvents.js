@@ -4,6 +4,7 @@ import { View, FlatList, Button, Text, Platform, Alert } from 'react-native';
 import * as utils from '../utils/utils';
 import { events as events_api } from '../utils/Server_api';
 import ManagedEvent from './ManagedEvent';
+import AppTitle from './AppTitle';
 
 export default class ManageEvents extends React.Component{
     constructor(props){
@@ -90,6 +91,7 @@ export default class ManageEvents extends React.Component{
     render(){
         return (
             <View style={{alignContent: 'center', flex:1,}}>
+            <AppTitle/>
                 <FlatList data={this.state.events}
                           ItemSeparatorComponent={utils.render_separator}
                           showsVerticalScrollIndicator={false}

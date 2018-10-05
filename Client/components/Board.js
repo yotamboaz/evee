@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, ActivityIndicator, Button, ListView, FlatList, Text, Alert, StyleSheet, TouchableHighlight, InteractionManager, Platform } from 'react-native';
+import { View, ActivityIndicator, Button, ListView, FlatList, Text, Alert, StyleSheet, TouchableHighlight, InteractionManager, Platform, BackHandler, ToastAndroid} from 'react-native';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 import { StackNavigator, DrawerNavigator, createStackNavigator, createDrawerNavigator } from 'react-navigation';
 import styles from '../utils/styles';
 import EventsBoard from './EventsBoard';
 import ManageEvents from './ManageEvents';
 import Categories from './Categories';
+import AppTitle from './AppTitle';
 
 import { events as events_server_api } from '../utils/Server_api';
 import { formats as formats_api, events as events_api } from '../utils/Server_api';
@@ -32,7 +33,8 @@ export default class Board extends React.Component{
 			boardButtonOpacity: 1,
 			menuActive: false,
 			filterScreenActive: false,
-            menuOpacity: 0.5,
+			menuOpacity: 0.5,
+			filterOpacity: 0.5,
 			event_kind: 'board',
 			// flag to indicate if should fetch events again from the server
 			load_events: true,
@@ -54,6 +56,8 @@ export default class Board extends React.Component{
 		global.id = userID;
 		global.username = userName;
 	}
+
+
 
 	async componentDidUpdate(prev_props){
 
@@ -99,6 +103,8 @@ export default class Board extends React.Component{
 	}
 	
 	async componentDidMount(){
+
+		BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
 
 		if(!this.state.load_events){
 			return;
@@ -157,6 +163,15 @@ export default class Board extends React.Component{
 				filteredEvents: filteredEvents
             }
         });
+	}
+	
+	async componentWillUnmount() {
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
+	}
+	
+	handleBackButton() {
+        ToastAndroid.show('Back button is disabled', ToastAndroid.SHORT);
+        return true;
     }
 
     boardButton() {
@@ -216,6 +231,7 @@ export default class Board extends React.Component{
     renderEvents(){
         return(
             <View style={styles.wholeApp}>
+				<AppTitle/>
 				<View style={styles.topContent}>
 					<View style={{flex: 0.1, padding: 8}}>
 						<TouchableHighlight onPress={() => this.menuButton()} underlayColor={'transparent'}>
@@ -276,6 +292,7 @@ export default class Board extends React.Component{
     menuMode(){
 		return(
 			<View style={styles.wholeApp}>
+				<AppTitle/>
 				<View style={styles.topContent}>
 					<View style={{flex: 0.1, padding: 8}}>
 						<TouchableHighlight onPress={() => this.menuButton()} underlayColor={'transparent'}>
@@ -343,6 +360,7 @@ export default class Board extends React.Component{
 	renderFilterOptions(){
 		return(
 			<View style={styles.wholeApp}>
+				<AppTitle/>
 				<View style={styles.topContent}>
 					<View style={{flex: 0.1, padding: 8}}>
 						<TouchableHighlight onPress={() => this.menuButton()} underlayColor={'transparent'}>
@@ -387,24 +405,43 @@ export default class Board extends React.Component{
 				<View style={{flex:0.3}}>				
 					<TextButton 
 						title='Activate Filters'
-						onPress={() => this.setState({
-							filterSettings: {active: true, category: this.state.current_form.category, sub_category: this.state.current_form.sub_category}						
-						})}
+						onPress={() => this.activateFilters(this)}
 						titleColor='white'
 						style={styles.filterMenuButton}
 					/>
 					<TextButton 
 						title='Display All Events'
-						onPress={() => this.setState({
-							filteredEvents: this.state.events,
-							filterSettings: {active: false, category: 'Default', sub_category: 'Default'}
-						})}
+						onPress={() => this.removeFilters(this)}
 						titleColor='white'
 						style={styles.filterMenuButton}						
 					/>
 				</View>
 			</View>
 		);
+	}
+
+	activateFilters(_this) {
+		if (_this.state.current_form.category == null && _this.state.current_form.sub_category == null){
+			Alert.alert('Error', 'You must choose category and sub-category!');
+			_this.boardButton();
+			return;
+		}	
+		_this.setState({
+			filterSettings: {active: true, category: _this.state.current_form.category, sub_category: _this.state.current_form.sub_category},
+			load_events: true
+		});
+		Alert.alert('Success', 'Filter was activated!');
+		_this.boardButton();
+	}
+
+	removeFilters(_this) {
+		_this.setState({
+			filteredEvents: _this.state.events,
+			filterSettings: {active: false, category: 'Default', sub_category: 'Default'},
+			load_events: true			
+		})
+		Alert.alert('Success', 'Filter was removed!');		
+		_this.boardButton();
 	}
 	
 	fetch_events = async () => {
@@ -438,13 +475,28 @@ export default class Board extends React.Component{
 		var filteredEvents = [];
 		if (this.state.filterSettings.active){
 			var category = this.state.filterSettings.category;
-			var sub_category = this.state.filterSettings.sub_category;			
-			events.forEach(function(event){														
-				if (event.category == category && event.sub_category == sub_category){
-					filteredEvents.push(event);
-					console.log('event was added to filteredEvents');
-				}
-			})
+			var sub_category = this.state.filterSettings.sub_category;
+			console.log('category::::'+category);
+			console.log('sub_category::::'+sub_category);				
+			if (category == null && sub_category == null){
+				return events;
+			}
+			else if (sub_category == null) {
+				events.forEach(function(event){			
+					if (event.category == category){
+						filteredEvents.push(event);
+						console.log('event was added to filteredEvents');
+					}
+				});
+			}
+			else {
+				events.forEach(function(event){			
+					if (event.category == category && event.sub_category == sub_category){
+						filteredEvents.push(event);
+						console.log('event was added to filteredEvents');
+					}
+				});
+			}
 			console.log(filteredEvents);
 			return filteredEvents;
 		}
