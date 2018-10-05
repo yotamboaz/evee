@@ -18,6 +18,7 @@ import * as google_api from '../../utils/Apps_login_api/Google_api';
 import { TextButton, RaisedTextButton } from 'react-native-material-buttons';
 // TextField ref - https://github.com/n4kz/react-native-material-textfield#properties
 import { TextField } from 'react-native-material-textfield';
+import AppTitle from '../AppTitle';
 
 var nav; // contains the global navigation object		
 export { nav };
@@ -40,6 +41,7 @@ export default class Login extends Component{
         console.log(this.state)
         return(
             <View style={styles.wholeApp}>
+                <AppTitle/>
                 <Loading loading={this.state.is_loading} />
                 <Text style={{marginTop: 15, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
                     Welcome to Evee!
@@ -124,7 +126,9 @@ export default class Login extends Component{
     }
 
     facebook_login = async () => {
+        console.log('aaa');
         var details = await facebook_api.logIn()
+        console.log('bbb');        
         var token = details.token;
         var user_facebook_id = details.id;
 
