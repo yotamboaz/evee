@@ -11,6 +11,7 @@ import UserForm from './components/UserForm';
 import Board from './components/Board';
 import ManageEvents from './components/ManageEvents';
 import ManageEventsContainer from './components/ManageEventsContainer';
+import AppTitle from './components/AppTitle';
 
 // Global Variables
 var ipAddress = 'http://vmedu158.mtacloud.co.il:8080/evee/webapi/events/';
@@ -21,6 +22,7 @@ const LoginScreen = ({navigation}) => (<Login navigation={navigation} />);
 
 const NewEventScreen = ({ navigation }) => (
 	<View style={{backgroundColor: '#E2FCFF', flex: 1}}>
+		<AppTitle/>
 		<UserForm id={global.id} username={global.username} />
 	</View>
 );
@@ -46,30 +48,49 @@ const NewEventScreen = ({ navigation }) => (
 // 	}
 // }
 
+// const RootNavigator = createStackNavigator({
+// 	LoginScreen: {
+//     screen: LoginScreen,
+//     navigationOptions: {
+// 		headerTitle: 'Login',
+//     },
+//   },
+//   NewEventScreen: {
+// 	screen: NewEventScreen,
+//     navigationOptions: {
+// 		headerTitle: 'New Event',
+//     },
+//   },
+//   Board: {
+// 	screen: Board,
+//     navigationOptions: {
+// 		headerTitle: 'Board',
+//     },
+// 	},
+// 	ManageEventsContainer: {
+// 		screen: ManageEventsContainer,
+// 			navigationOptions: {
+// 			headerTitle: 'Manage Events',
+// 			},
+// 	},
+// });
+
 const RootNavigator = createStackNavigator({
 	LoginScreen: {
-    screen: LoginScreen,
-    navigationOptions: {
-		headerTitle: 'Login',
-    },
+		screen: LoginScreen,
+		navigationOptions: { header: null }
   },
   NewEventScreen: {
-	screen: NewEventScreen,
-    navigationOptions: {
-		headerTitle: 'New Event',
-    },
+		screen: NewEventScreen,
+		navigationOptions: { header: null }
   },
   Board: {
-	screen: Board,
-    navigationOptions: {
-		headerTitle: 'Board',
-    },
+		screen: Board,
+		navigationOptions: { header: null }
 	},
 	ManageEventsContainer: {
 		screen: ManageEventsContainer,
-			navigationOptions: {
-			headerTitle: 'Manage Events',
-			},
+		navigationOptions: { header: null }
 	},
 });
 
