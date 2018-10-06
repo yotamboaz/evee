@@ -124,9 +124,10 @@ export default class UserForm extends React.Component {
                         {marker}
                     </MapView>
                 </View>
-                <View style={{flex: 0.6, margin: 10, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
+                <View style={{flex: 0.6, margin: 10, padding:5, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
                     <ScrollView>
                         <TextField label='Address'
+                                    // style={{textAlign: 'left'}}
                                     value={this.state.location['address']} 
                                     onSubmitEditing={address_event => this.on_address_picked(address_event.nativeEvent.text)} />
 
@@ -161,7 +162,7 @@ export default class UserForm extends React.Component {
                                                 <Text>{utils.string_format('{0}:{1}', this.state.date.getHours(), this.state.date.getMinutes())}</Text>
                                                 </View>)}
 
-                        <Button title='Submit' onPress={this.submit_form} />
+                        <View style={{marginTop:10}}><Button title='Submit' color='#4d8c91' onPress={this.submit_form} /></View>
                     </ScrollView>
                 </View>                
                 <View style={{flex: 0.1}}>                

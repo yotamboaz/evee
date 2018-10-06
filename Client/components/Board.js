@@ -182,6 +182,7 @@ export default class Board extends React.Component{
         this.setState({event_kind: 'board'});
 		this.setState({menuActive: false});
 		this.setState({filterScreenActive: false});
+		this.setState({load_events: true});
 		this.render();
 	}
 
@@ -192,7 +193,8 @@ export default class Board extends React.Component{
 		this.setState({filterOpacity: 0.5});
         this.setState({event_kind: 'map'});
 		this.setState({menuActive: false});
-		this.setState({filterScreenActive: false});	
+		this.setState({filterScreenActive: false});
+		this.setState({load_events: true});		
 		this.render();		
 	}
 
@@ -244,7 +246,7 @@ export default class Board extends React.Component{
 						<TouchableHighlight onPress={() => this.boardButton()} underlayColor={'transparent'}
 						style={{opacity: this.state.boardButtonOpacity, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
 							<Text style={{margin: 5, fontSize: 16, textAlign: 'center', color: '#77c8ce'}}>
-							Board
+							Events List
 							</Text>
 						</TouchableHighlight>
 					</View>
@@ -252,7 +254,7 @@ export default class Board extends React.Component{
 						<TouchableHighlight onPress={() => this.aroundMeButton()} underlayColor={'transparent'}
 						style={{opacity: this.state.aroundMeButtonOpacity, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
 							<Text style={{margin: 5, fontSize: 16, textAlign: 'center', color: '#77c8ce'}}>
-							Around Me
+							Events Map
 							</Text>
 						</TouchableHighlight>
 					</View>
@@ -305,7 +307,7 @@ export default class Board extends React.Component{
 						<TouchableHighlight onPress={() => this.boardButton()} underlayColor={'transparent'}
 						style={{opacity: this.state.boardButtonOpacity, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
 							<Text style={{margin: 5, fontSize: 16, textAlign: 'center', color: '#77c8ce'}}>
-							Board
+							Events List
 							</Text>
 						</TouchableHighlight>
 					</View>
@@ -313,7 +315,7 @@ export default class Board extends React.Component{
 						<TouchableHighlight onPress={() => this.aroundMeButton()} underlayColor={'transparent'}
 						style={{opacity: this.state.aroundMeButtonOpacity, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
 							<Text style={{margin: 5, fontSize: 16, textAlign: 'center', color: '#77c8ce'}}>
-							Around Me
+							Events Map
 							</Text>
 						</TouchableHighlight>
 					</View>
@@ -345,7 +347,7 @@ export default class Board extends React.Component{
 						title='Logout'
 						onPress={this._delete_user}
 						titleColor='white'
-						style={styles.userMenuButton}						
+						style={styles.userMenuLogoutButton}						
 					/>
 				</View>
 				<View style={{ flex: 0.1 }}>
@@ -373,7 +375,7 @@ export default class Board extends React.Component{
 						<TouchableHighlight onPress={() => this.boardButton()} underlayColor={'transparent'}
 						style={{opacity: this.state.boardButtonOpacity, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
 							<Text style={{margin: 5, fontSize: 16, textAlign: 'center', color: '#77c8ce'}}>
-							Board
+							Events List
 							</Text>
 						</TouchableHighlight>
 					</View>
@@ -381,7 +383,7 @@ export default class Board extends React.Component{
 						<TouchableHighlight onPress={() => this.aroundMeButton()} underlayColor={'transparent'}
 						style={{opacity: this.state.aroundMeButtonOpacity, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
 							<Text style={{margin: 5, fontSize: 16, textAlign: 'center', color: '#77c8ce'}}>
-							Around Me
+							Events Map
 							</Text>
 						</TouchableHighlight>
 					</View>
@@ -407,13 +409,13 @@ export default class Board extends React.Component{
 						title='Activate Filters'
 						onPress={() => this.activateFilters(this)}
 						titleColor='white'
-						style={styles.filterMenuButton}
+						style={styles.filterMenuButton1}
 					/>
 					<TextButton 
 						title='Display All Events'
 						onPress={() => this.removeFilters(this)}
 						titleColor='white'
-						style={styles.filterMenuButton}						
+						style={styles.filterMenuButton2}						
 					/>
 				</View>
 			</View>
@@ -428,9 +430,9 @@ export default class Board extends React.Component{
 		}	
 		_this.setState({
 			filterSettings: {active: true, category: _this.state.current_form.category, sub_category: _this.state.current_form.sub_category},
-			load_events: true
+			// load_events: true
 		});
-		Alert.alert('Success', 'Filter was activated!');
+		//Alert.alert('Success', 'Filter was activated!');
 		_this.boardButton();
 	}
 
@@ -438,9 +440,9 @@ export default class Board extends React.Component{
 		_this.setState({
 			filteredEvents: _this.state.events,
 			filterSettings: {active: false, category: 'Default', sub_category: 'Default'},
-			load_events: true			
+			// load_events: true		
 		})
-		Alert.alert('Success', 'Filter was removed!');		
+		//Alert.alert('Success', 'Filter was removed!');		
 		_this.boardButton();
 	}
 	

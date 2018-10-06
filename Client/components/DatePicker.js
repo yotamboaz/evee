@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Button } from 'react-native';
+import { View, Button, TextButton } from 'react-native';
+import styles from '../utils/styles';
 
 // DateTimePicker ref - https://github.com/mmazzarolo/react-native-modal-datetime-picker
 import DateTimePicker from 'react-native-modal-datetime-picker';
@@ -9,8 +10,13 @@ const DatePicker = (props) => {
     let is_visible = props.show_date.show_date
     return(
         <View>
-            <Button onPress={props.on_date_pick} title='Choose date' />
-
+            <Button onPress={props.on_date_pick} color='#77c8ce' title='Choose date' />
+            {/* <TextButton 
+                title='Choose Date'
+                onPress={props.on_date_pick}
+                titleColor='white'
+                style={styles.userMenuButton}						
+            /> */}
             <DateTimePicker
             mode='datetime'
             isVisible={is_visible}

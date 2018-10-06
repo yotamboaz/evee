@@ -14,7 +14,7 @@ const ManagedEvent = (props) => {
     return (
         <ScrollView>
             {event_details}
-            <Button title={button_title} onPress={()=>props.remove_cb(props.event.name, props.event.id)} />
+            <Button title={button_title} color='#4d8c91' onPress={()=>props.remove_cb(props.event.name, props.event.id)} />
         </ScrollView>
     )
 }
