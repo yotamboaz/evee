@@ -63,14 +63,26 @@ const styles = StyleSheet.create({
         margin: 10,
         borderRadius: 10
     },
-    filterMenuButton: {
+    userMenuLogoutButton: {
+        backgroundColor: '#4d8c91',
+        height: '10%',
+        margin: 10,
+        borderRadius: 10
+    },
+    filterMenuButton1: {
         backgroundColor: '#77c8ce',
         height: '30%',
         margin: 10,
         borderRadius: 10
     },
+    filterMenuButton2: {
+        backgroundColor: '#4d8c91',
+        height: '30%',
+        margin: 10,
+        borderRadius: 10
+    },
     newEventButton: {
-        backgroundColor: '#77c8ce',
+        backgroundColor: '#4d8c91',
         height: '40%',
         margin: 5,
         borderRadius: 10
