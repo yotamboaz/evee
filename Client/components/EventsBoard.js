@@ -98,14 +98,15 @@ export default class EventsBoard extends React.Component{
                 </View>
         }
         else{
-            if(this.state.events.length == 0){
+            if(!this.state.events || this.state.events.length == 0){
                 return null
             }
-            
+            console.log(this.state.events)
             event_board = 
                 <View style={{flex:1, width:'90%', borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
                     <FlatList   data={this.state.events}
                                 renderItem={({item}) => {
+                                    console.log('rendering event');
                                     var show_data = (chosed_event!=null && chosed_event.id == item.id)
                                     return  <Event  key={item.id}
                                                     event={item} 
@@ -116,7 +117,7 @@ export default class EventsBoard extends React.Component{
                                                     register_to_event_cb={this.register_to_event} />
                                     }}
                                 keyExtractor={item=>String(item.id)}
-                                // ItemSeparatorComponent={utils.render_separator}
+                                ItemSeparatorComponent={utils.render_separator}
                                 showsVerticalScrollIndicator={false}
                                 extraData={this.state.chosed_event} />
                 </View>

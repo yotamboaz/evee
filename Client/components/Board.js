@@ -52,7 +52,7 @@ export default class Board extends React.Component{
             field_values: {},
             invalid_fields: {},
             registered_fields: ['Event Name'],
-			closed_events: null,
+			closed_events: [],
 		}
 		global.id = userID;
 		global.username = userName;
@@ -66,9 +66,11 @@ export default class Board extends React.Component{
 			return;
 		
 		events = await this.fetch_events();
-		filteredEvents = await this.filter_events(events);
 		if(!events){
-			return;
+			events = [];
+		}
+		else{
+			 filteredEvents = await this.filter_events(events);
 		}
 
 		this.setState(prev_state => {
@@ -95,42 +97,31 @@ export default class Board extends React.Component{
 		if(!this.state.load_events){
 			return;
 		}
-		
-		events = await this.fetch_events();
-		filteredEvents = await this.filter_events(events);
-		// console.log('==== ==== mount ==== ====');
-		// console.log(events);
-		// console.log('--------------------')
-		// console.log(filteredEvents); 
-		if(!events){
-			return;
-		}
-
-		//?
 
 		var form_objects = null;
 		form_objects = await this._pull_forms();
+		var categories;
         if(form_objects){
-            var categories = utils.collect_categories(form_objects);
-			console.log('--------------------- categories --------------------');
-			console.log(categories);
-
-			this.setState(prev_state => {
-				return {
-					categories: categories,
-				}
-			})
-        }
-        
+			var categories = utils.collect_categories(form_objects);
+			console.log('--------- fetched categories ----------');
+			console.log(categories)
+		}
+		else{
+			categories = null;
+		}
+		
 	   events = await this.fetch_events()
 	   if(!events){
 		   events = [];
 	   }
+	   
+	   //initialising filtered_events to events
+	   var filteredEvents = events;
 
 	   // informing the user about subscribed events that got closed
-		var closed_events = this.fetch_closed_events();
+		var closed_events = await this.fetch_closed_events();
 		if(!closed_events){
-			closed_events = null;
+			closed_events = [];
 		}
 			
         this.setState(prev_state => {
@@ -145,6 +136,7 @@ export default class Board extends React.Component{
 				event_kind: prev_state.event_kind,
 				load_events: false,
 				events: events,
+				categories: categories,
 				filteredEvents: filteredEvents,
 				closed_events: closed_events
             }
@@ -254,8 +246,8 @@ export default class Board extends React.Component{
 				</View>
                 <View style={styles.mainContent}>
 					{/* Closed events */}
-					{this.state.closed_events ? <ClosedEvents events={this.state.closed_events}
-															  close_modal={() => this.setState({closed_events: null})} />:null}
+					{this.state.closed_events.length > 0 ? <ClosedEvents events={this.state.closed_events}
+															  close_modal={() => this.setState({closed_events: []})} />:null}
 					{/* Events Board */}
                     <EventsBoard id={this.state.id} events={this.state.filteredEvents} event_kind={this.state.event_kind}/>
                 </View>
@@ -588,8 +580,11 @@ export default class Board extends React.Component{
 								  console.log(error);
 								  return null;
 							  })
-		if(closed_events && closed_events.length > 0)
+		if(closed_events && closed_events.length > 0){
+			console.log('-------- fetceed closed events ---------');
+			console.log(closed_events);
 			return closed_events;
+		}
 
 		events = [
 			{

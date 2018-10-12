@@ -54,19 +54,8 @@ export default class Event extends React.Component{
                                                     </Text>));
         if(this.state.event_kind == 'map'){
             var latlng = {};
-
-            //=============================\\
-            // TODO: Remove the condition. \\
-            //=============================\\
-            // caused by bad server version that saved wrong details.
-            if(this.state.event.location){
-                latlng['latitude'] = this.state.event.location['latitude'];
-                latlng['longitude'] = this.state.event.location['longitude'];
-            }
-            else{
-                latlng['latitude'] = 32.5;
-                latlng['longitude'] = 30.1;
-            }
+            latlng['latitude'] = this.state.event.location['latitude'];
+            latlng['longitude'] = this.state.event.location['longitude'];
 
             key = Platform.OS == 'ios' ? this.state.event.id : utils.string_format('{0}{1}', this.state.event.id, this.state.time_stamp);
             return (
@@ -89,12 +78,7 @@ export default class Event extends React.Component{
                 console.log(utils.string_format('showing event - {0}\n================\n{1}', this.state.event.id, details));
 
             return (
-                // <View key={this.state.event.id} style={{borderColor: 'black',
-                //                                         backgroundColor: 'azure',
-                //                                         justifyContent:'space-between',
-                //                                         alignContent: 'stretch'}}>
                 <View key={this.state.event.id}>
-                    {/* <Button onPress={this.chosed_event} title={this.state.event.name} key='event_button'/> */}
                     <TextButton 
 						title={this.state.event.name}
 						onPress={this.chosed_event}
