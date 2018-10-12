@@ -74,9 +74,6 @@ export default class Event extends React.Component{
                 )
         }
         else{
-            if(this.state.show_data)
-                console.log(utils.string_format('showing event - {0}\n================\n{1}', this.state.event.id, details));
-
             return (
                 <View key={this.state.event.id}>
                     <TextButton 

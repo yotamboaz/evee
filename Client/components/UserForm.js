@@ -126,7 +126,7 @@ export default class UserForm extends React.Component {
                 </View>
                 <View style={{flex: 0.6, margin: 10, padding:5, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
                     <ScrollView>
-                        <TextField label='Address'
+                        <TextField label='Address *'
                                     // style={{textAlign: 'left'}}
                                     value={this.state.location['address']} 
                                     onSubmitEditing={address_event => this.on_address_picked(address_event.nativeEvent.text)} />
@@ -137,7 +137,7 @@ export default class UserForm extends React.Component {
                                     on_category_changed={this.on_category_changed}
                                     on_sub_category_changed={this.on_sub_category_changed} /> 
 
-                        <TextField label='Event Name'
+                        <TextField label='Event Name *'
                                     value={this.state.field_values['event_name']}
                                     onChangeText={name => {this.on_form_field_changed('Event Name', name)}} />
 

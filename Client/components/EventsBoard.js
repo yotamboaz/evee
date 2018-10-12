@@ -106,7 +106,6 @@ export default class EventsBoard extends React.Component{
                 <View style={{flex:1, width:'90%', borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
                     <FlatList   data={this.state.events}
                                 renderItem={({item}) => {
-                                    console.log('rendering event');
                                     var show_data = (chosed_event!=null && chosed_event.id == item.id)
                                     return  <Event  key={item.id}
                                                     event={item} 

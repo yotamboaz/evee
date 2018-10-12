@@ -51,7 +51,8 @@ export default class Categories extends React.Component {
                 <Dropdown label='Category'
                           data={categories}
                           onChangeText={this._on_category_changed}
-                          containerStyle={styles.CategoryPicker} />
+                          containerStyle={styles.CategoryPicker}
+                          value={this.state.selected_category ? this.state.selected_category : 'Default'} />
                 {/* <Picker onValueChange={this._on_sub_category_changed} 
                         selectedValue={this.state.selected_sub_category} >
                     {sub_categories}
@@ -59,7 +60,8 @@ export default class Categories extends React.Component {
                 <Dropdown label='Sub-category'
                           data={sub_categories}
                           onChangeText={this._on_sub_category_changed}
-                          containerStyle={styles.CategoryPicker} />
+                          containerStyle={styles.CategoryPicker}
+                          value={this.state.selected_sub_category ? this.state.selected_sub_category : 'Default'} />
             </View>
         )
     }
