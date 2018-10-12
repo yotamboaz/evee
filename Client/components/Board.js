@@ -67,24 +67,9 @@ export default class Board extends React.Component{
 		
 		events = await this.fetch_events();
 		filteredEvents = await this.filter_events(events);
-		// console.log('==== ==== update ==== ====');
-		// console.log(events);
-		// console.log('--------------------')
-		// console.log(filteredEvents); 
 		if(!events){
 			return;
 		}
-	
-			// filter the events \\
-			//============================= READ THIS BEFORE WORKING ON FILTER ==========================\\
-			// need to think if filttering process should be here,                                       \\
-			// because user might change filter options, and refetching                                  \\
-			// events each time user change filter is not scalable, and not officiant.                   \\
-			// maybe add filtered_events to state, and present them if user chosed filter options.       \\
-			//===========================================================================================\\
-			//																							 \\
-			//  filtered_events = this.filter_events(events)											 \\
-			//===========================================================================================\\
 
 		this.setState(prev_state => {
 			return {
@@ -125,18 +110,17 @@ export default class Board extends React.Component{
 
 		var form_objects = null;
 		form_objects = await this._pull_forms();
-        if(!form_objects){
-            return;
-        }
-        var categories = utils.collect_categories(form_objects);
-		console.log('--------------------- categories --------------------');
-        console.log(categories);
+        if(form_objects){
+            var categories = utils.collect_categories(form_objects);
+			console.log('--------------------- categories --------------------');
+			console.log(categories);
 
-        this.setState(prev_state => {
-            return {
-                categories: categories,
-            }
-        })
+			this.setState(prev_state => {
+				return {
+					categories: categories,
+				}
+			})
+        }
         
 	   events = await this.fetch_events()
 	   if(!events){
@@ -585,7 +569,7 @@ export default class Board extends React.Component{
 
 	fetch_closed_events = async () => {
 		//pull closed events that the user subscribed to.
-		let api = utils.string_format('{0}/closed?user_id={1}', events_api, this.state.id);
+		var api = utils.string_format('{0}/closed?user_id={1}', events_api, this.state.id);
 
 		closed_events = await fetch(api)
 							  .then(response => response.json())

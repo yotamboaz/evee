@@ -35,6 +35,7 @@ export default class ClosedEvents extends React.Component{
                         <View>
                             <Text title={item.name} style={{textDecorationLine: 'underline'}} onPress={() => this.picked_event(item.id)} />
                             <ClosedEvent event={item} />
+                            {/* {is_visible ? <ClosedEvent event={item} />:null} */}
                         </View>
                     )
                 }}
