@@ -21,7 +21,6 @@ export default class Board extends React.Component{
 
     constructor(props){
         super(props);
-        console.log('Board ctor');
         const { navigation } = this.props;
         const userID = navigation.getParam('id', '0');
         const userName = navigation.getParam('username', '');
@@ -71,13 +70,26 @@ export default class Board extends React.Component{
 		}
 		else{
 			 filteredEvents = await this.filter_events(events);
+			 var reset_categories = false;
+			 if(filteredEvents.length == 0){
+				 filteredEvents = events;
+				 Alert.alert('No events in selected filter', 'showing all events');
+				 reset_categories = true;
+			 }
 		}
 
 		this.setState(prev_state => {
+			selected_category = reset_categories ? null : this.state.selected_category;
+			selected_sub_category = reset_categories ? null : this.state.selected_sub_category;
+			filterSettings = reset_categories ? {category: null, sub_category: null, active: false} : this.state.filterSettings;
+
 			return {
 				id: prev_state.id,
 				username: prev_state.username,
 				isLoading: false,
+				selected_category: selected_category,
+				selected_sub_category: selected_sub_category,
+				filterSettings: filterSettings,
 				aroundMeButtonOpacity: prev_state.aroundMeButtonOpacity,
 				boardButtonOpacity: prev_state.boardButtonOpacity,
 				menuActive: prev_state.menuActive,
@@ -374,8 +386,8 @@ export default class Board extends React.Component{
 				</View>
 				<View style={{flex:0.6}}>
 					<Categories
-						selected_category={this.state.filterSettings.category}
-						selected_sub_category={this.state.filterSettings.sub_category}
+						selected_category={this.state.selected_category}
+						selected_sub_category={this.state.selected_sub_category}
 						categories={this.state.categories}
 						on_category_changed={this.on_category_changed}
 						on_sub_category_changed={this.on_sub_category_changed}
@@ -400,16 +412,9 @@ export default class Board extends React.Component{
 	}
 
 	activateFilters(_this) {
-		if (_this.state.current_form.category == null && _this.state.current_form.sub_category == null){
-			Alert.alert('Error', 'You must choose category and sub-category!');
-			_this.boardButton();
-			return;
-		}	
 		_this.setState({
-			filterSettings: {active: true, category: _this.state.current_form.category, sub_category: _this.state.current_form.sub_category},
-			// load_events: true
+			filterSettings: {active: true, category: _this.state.selected_category, sub_category: _this.state.selected_sub_category},
 		});
-		//Alert.alert('Success', 'Filter was activated!');
 		_this.boardButton();
 	}
 
@@ -456,30 +461,32 @@ export default class Board extends React.Component{
 			var category = this.state.filterSettings.category;
 			var sub_category = this.state.filterSettings.sub_category;
 			console.log('category::::'+category);
-			console.log('sub_category::::'+sub_category);				
-			if (category == null && sub_category == null){
-				return events;
-			}
-			else if (sub_category == null) {
+			console.log('sub_category::::'+sub_category);	
+			if(category != null && category != 'Default'){
+				console.log('filtering category: ' + category);
 				events.forEach(function(event){			
-					if (event.category == category){
+					if(event.category == category){
 						filteredEvents.push(event);
-						console.log('event was added to filteredEvents');
 					}
 				});
 			}
-			else {
-				events.forEach(function(event){			
-					if (event.category == category && event.sub_category == sub_category){
-						filteredEvents.push(event);
-						console.log('event was added to filteredEvents');
+			if(sub_category != null && sub_category != 'Default'){
+				console.log('filtering sub-category: ' + sub_category);
+				var temp_filteredEvents = filteredEvents.slice();
+				temp_filteredEvents.forEach(function(event){			
+					if (event.sub_category != sub_category){
+						var index = 0;
+						for(index in filteredEvents){
+							if(filteredEvents[index].id == event.id){
+								break;
+							}
+						}
+						filteredEvents.splice(index, 1);
 					}
 				});
-			}
-			console.log(filteredEvents);
+			}			
 			return filteredEvents;
 		}
-		console.log(events);
 		return events;		
 	}
 
@@ -510,51 +517,35 @@ export default class Board extends React.Component{
 	}
 	
 	on_category_changed = (category) => {
+		console.log(category);
+		if(this.state.filterSettings.category == category)
+			return;
+
         this.setState(prev_state => {
             return {
 				form_objects: prev_state.form_objects,
 				categories: prev_state.categories,
 				selected_category: category,
-				selected_sub_category: null,
-				location: prev_state.location,
-				current_form: {category: null, sub_category: null},
-				field_values: {},
-				invalid_fields: prev_state.invalid_fields,
-				registered_fields: prev_state.registered_fields,
+				selected_sub_category: null
             }
         })
     }
 
     on_sub_category_changed = (category, sub_category) => {
-        current_category = this.state.category;
-        current_sub_category = this.state.sub_category;
+        current_category = this.state.selected_category;
+        current_sub_category = this.state.selected_sub_category;
         if(category==current_category && sub_category==current_sub_category)
             // categories were not changed, thus no need to re-render
             return
 
         console.log(utils.string_format('changed categories to {0}\\{1}', category, sub_category))
-        let forms = this.state.form_objects;
-        var registered_fields = this.state.registered_fields.indexOf('Event Name') ? [] : ['Event Name']
-        forms.forEach(form_item => {
-            if(!(form_item.category == category && form_item.subCategory==sub_category))
-                return
 
-            form_item.fields.forEach(field => {
-                registered_fields.push(field.name)
-            })
-        })
         this.setState(prev_state => {
             return {
 					form_objects: prev_state.form_objects,
 					categories: prev_state.categories,
 					selected_category: category,
 					selected_sub_category: sub_category,
-					location: prev_state.location,
-					current_form: {category: category, sub_category: sub_category},
-					// Changed dynamic form, thus emptying the current one
-					field_values: {},
-					invalid_fields: prev_state.invalid_fields,
-					registered_fields: registered_fields
                 }
 		})
     }
@@ -585,78 +576,9 @@ export default class Board extends React.Component{
 			console.log(closed_events);
 			return closed_events;
 		}
-
-		events = [
-			{
-				id: 112,
-				name: "Tennis",
-				category: "Sports & Fitness",
-				location: {
-					address: "Yoav 20 ramat gan",
-					latitude: 32.068424,
-					longitude: 34.824785
-				},
-				isActive: true,
-				fields: {
-					'Required accessories/equipment': "None",
-					'address': "Yoav 20 ramat gan",
-					'Event Name': "Tennis",
-					'Type of field': "Outdoor, asphalt"
-				},
-				owner_id: 111,
-				sub_category: "Ball Games",
-				raw_date: 1537684156244,
-				max_num_of_participants: 3,
-				current_num_of_participants: 2,
-				subscribed_users: [
-					{
-						id: 116,
-						username: "user3",
-						email: "user3@gmail.com"
-					},
-					{
-						id: 144,
-						username: null,
-						email: "galrotenberg3@gmail.com"
-					}
-				],
-				subscribed_users_ids: [
-					116,
-					144
-				]
-			},
-			{
-				id: 145,
-				name: "אירוע בדיקה 2",
-				category: "Default",
-				location: {
-					address: "הפודים 11 רמת גן",
-					latitude: 32.0916274,
-					longitude: 34.8176193
-				},
-				isActive: true,
-				fields: {
-					"Event Name": "אירוע בדיקה 2",
-					"address": "הפודים 11 רמת גן"
-				},
-				owner_id: 143,
-				sub_category: "Default",
-				raw_date: 1538232240000,
-				max_num_of_participants: 4,
-				current_num_of_participants: 1,
-				subscribed_users: [
-					{
-						id: 144,
-						username: null,
-						email: "galrotenberg3@gmail.com"
-					}
-				],
-				subscribed_users_ids: [
-					144
-				]
-			},
-		]
-		return events;
+		else{
+			return [];
+		}
 	}
 	
 	inform_with_closed_events = (closed_events) => {
