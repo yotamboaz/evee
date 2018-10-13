@@ -34,29 +34,20 @@ export default class Categories extends React.Component {
     
     render() {
         let categories= Object.keys(this.state.categories).map(item => {
-            // return <Picker.Item label={item} value={item} key={item} />
             return {value: item}
         })
         let sub_categories = this.state.selected_category == null || this.state.selected_sub_category == 'Default' ? [] : this.state.categories[this.state.selected_category].map(item => {
-            // return <Picker.Item label={item} value={item} key={item} />
             return {value: item}
         })
 
         return (
             <View style={{justifyContent:'flex-start',}}>
-                {/* <Picker onValueChange={this._on_category_changed}
-                        selectedValue={this.state.selected_category} >
-                    {categories}
-                </Picker> */}
                 <Dropdown label='Category'
                           data={categories}
                           onChangeText={this._on_category_changed}
                           containerStyle={styles.CategoryPicker}
                           value={this.state.selected_category ? this.state.selected_category : 'Default'} />
-                {/* <Picker onValueChange={this._on_sub_category_changed} 
-                        selectedValue={this.state.selected_sub_category} >
-                    {sub_categories}
-                </Picker> */}
+
                 <Dropdown label='Sub-category'
                           data={sub_categories}
                           onChangeText={this._on_sub_category_changed}

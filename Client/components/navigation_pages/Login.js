@@ -38,7 +38,6 @@ export default class Login extends Component{
     }
 
     render(){
-        console.log(this.state)
         return(
             <View style={styles.wholeApp}>
                 <AppTitle/>
@@ -60,12 +59,6 @@ export default class Login extends Component{
                             color='red'
                             style={{height:'20%', padding: 10, margin: 10, borderRadius: 10}}
                         />
-                         {/* <TextButton onPress={this._delete_user}
-                            title='Logout'
-                            titleColor='white'
-                            color='green'
-                            style={{height:'20%', padding: 10, margin: 10}}                            
-                        /> */}
                         <Text style={{marginTop: 15, marginBottom: 10, fontSize: 24, textAlign: 'center', color: '#E2FCFF'}}>
                             <Image style={{width: 280, height: 210}} source={require('../../logo.png')} />
                         </Text>
@@ -129,9 +122,8 @@ export default class Login extends Component{
     }
 
     facebook_login = async () => {
-        console.log('aaa');
         var details = await facebook_api.logIn()
-        console.log('bbb');        
+
         var token = details.token;
         var user_facebook_id = details.id;
 
@@ -171,7 +163,6 @@ export default class Login extends Component{
 
         //save the data on the device
         saving_result = await this._save_user(user);
-        console.log(saving_result)
 
         this.setState(prev_state => {
             return {
@@ -198,7 +189,6 @@ export default class Login extends Component{
             Alert.alert('Connection with google account failed')
             return
         }
-        console.log(details)
 
         this.setState(prev_state => {
             return {
@@ -223,7 +213,6 @@ export default class Login extends Component{
 
         //save the data on the device
         saving_result = await this._save_user(user);
-        console.log(saving_result)
 
         this.setState(prev_state => {
             return {
@@ -269,12 +258,11 @@ export default class Login extends Component{
                         })
                  .then(response => response.json())
                  .then(server_response => {
-                        console.log(server_response)
                         if(server_response.status=='success'){
                             return String(server_response.user.id);
                         }
                         else{
-                            console.log('server failed')
+                            console.log('while sending user details, server error accured')
                             tries = 5
                             Alert.alert(server_response.error);
                             return null;

@@ -693,7 +693,6 @@ export default class UserForm extends React.Component {
         // send the form to the server
         sent_form = await this._send_form(form);
         if(sent_form){
-            Alert.alert('Created the event!');
             nav.navigate('Board', {
                 id: this.state.user_id,
                 username: this.state.user_name,
@@ -705,7 +704,6 @@ export default class UserForm extends React.Component {
     }
 
     _send_form = async (form) => {
-        console.log(form)
         let tries = 0;
         let result = false;
 
@@ -725,14 +723,14 @@ export default class UserForm extends React.Component {
                                     return true
                                 }
                                 else{
-                                    console.log('server failed')
+                                    console.log('while sending user form, server error accured')
                                     tries = 3;
                                     Alert.alert(server_response.error);
                                     return false
                                 }
                             })
                             .catch(error => {
-                                console.log('app failed')
+                                console.log('while sending user form, internal error accured')
                                 console.log(error);
                                 if(tries >= 2){
                                     Alert.alert(error);

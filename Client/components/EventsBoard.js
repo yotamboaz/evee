@@ -211,7 +211,7 @@ export default class EventsBoard extends React.Component{
             result = await fetch(api, {method: 'PUT'})
                            .then(response => response.json())
                            .then(server_response => {
-                               if(server_response.response == "success"){
+                               if(server_response.status == "success"){
                                    return true;
                                }
                                else{
@@ -239,11 +239,11 @@ export default class EventsBoard extends React.Component{
         var events = [];
         this.state.events.forEach(event => {
             if(event.id == event_id){
+                console.log('The subscribed event:');
+                console.log(event);
                 event.subscribed_users_ids.push(this.state.id);
             }
             events.push(event);
-            
-            return event;
         })
         this.setState(prev_state => {
             return {

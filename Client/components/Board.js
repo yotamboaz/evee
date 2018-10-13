@@ -358,9 +358,7 @@ export default class Board extends React.Component{
 		_this.setState({
 			filteredEvents: _this.state.events,
 			filterSettings: {active: false, category: 'Default', sub_category: 'Default', show_date: true, date: null},
-			// load_events: true		
 		})
-		//Alert.alert('Success', 'Filter was removed!');		
 		_this.boardButton();
 	}
 	
@@ -396,10 +394,7 @@ export default class Board extends React.Component{
 		if (this.state.filterSettings.active){
 			var category = this.state.filterSettings.category;
 			var sub_category = this.state.filterSettings.sub_category;
-			var requestedDate = this.state.filterSettings.date == null ? null : this.state.filterSettings.date.getTime();
-			console.log('category::::'+category);
-			console.log('sub_category::::'+sub_category);
-			console.log('req_date::::'+requestedDate);			
+			var requestedDate = this.state.filterSettings.date == null ? null : this.state.filterSettings.date.getTime();		
 			if(category != null && category != 'Default'){
 				console.log('filtering category: ' + category);
 				events.forEach(function(event){			
@@ -488,7 +483,7 @@ export default class Board extends React.Component{
             // categories were not changed, thus no need to re-render
             return
 
-        console.log(utils.string_format('changed categories to {0}\\{1}', category, sub_category))
+        console.log(utils.string_format('changed filter categories to {0}\\{1}', category, sub_category))
 
         this.setState(prev_state => {
             return {
