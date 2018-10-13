@@ -27,53 +27,6 @@ const NewEventScreen = ({ navigation }) => (
 	</View>
 );
 
-// export class ManageEventsScreen extends React.Component{
-// 	constructor(props){
-// 		super(props);
-// 		const { navigation } = this.props;
-// 		const userID = navigation.getParam('id', '0');
-// 		const _kind = navigation.getParam('kind', '');
-// 		this.state = {
-// 			id: userID,
-// 			kind: _kind
-// 		}
-// 	}
-
-// 	render(){
-// 		return(
-// 			<View>
-// 					<ManageEventsContainer id={this.state.id} kind={this.state.kind}/>
-// 			</View>
-// 		);
-// 	}
-// }
-
-// const RootNavigator = createStackNavigator({
-// 	LoginScreen: {
-//     screen: LoginScreen,
-//     navigationOptions: {
-// 		headerTitle: 'Login',
-//     },
-//   },
-//   NewEventScreen: {
-// 	screen: NewEventScreen,
-//     navigationOptions: {
-// 		headerTitle: 'New Event',
-//     },
-//   },
-//   Board: {
-// 	screen: Board,
-//     navigationOptions: {
-// 		headerTitle: 'Board',
-//     },
-// 	},
-// 	ManageEventsContainer: {
-// 		screen: ManageEventsContainer,
-// 			navigationOptions: {
-// 			headerTitle: 'Manage Events',
-// 			},
-// 	},
-// });
 
 const RootNavigator = createStackNavigator({
 	LoginScreen: {

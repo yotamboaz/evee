@@ -19,6 +19,8 @@ import { nav } from './navigation_pages/Login';
 // Text/RaisedButton ref - https://github.com/n4kz/react-native-material-buttons
 import { TextButton, RaisedTextButton } from 'react-native-material-buttons';
 
+TIMEOUT_INTERVAL = 60000; // 1 minute
+
 export default class Board extends React.Component{
 
     constructor(props){
@@ -48,11 +50,9 @@ export default class Board extends React.Component{
             categories: {},
             selected_category: 'Default',
             selected_sub_category: 'Default',
-            location: {},
-            field_values: {},
-            invalid_fields: {},
             registered_fields: ['Event Name'],
 			closed_events: [],
+			refresh_enabled: true
 		}
 		global.id = userID;
 		global.username = userName;
@@ -61,16 +61,16 @@ export default class Board extends React.Component{
 
 
 	async componentDidUpdate(prev_props){
-
-		if(!this.state.load_events)
+		if(!this.state.load_events){
 			return;
+		}
 		
 		events = await this.fetch_events();
 		if(!events){
 			events = [];
 		}
 		else{
-			 filteredEvents = await this.filter_events(events);
+			 filteredEvents = this.filter_events(events);
 			 var reset_categories = false;
 			 if(filteredEvents.length == 0){
 				 filteredEvents = events;
@@ -106,10 +106,6 @@ export default class Board extends React.Component{
 	async componentDidMount(){
 
 		BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
-
-		if(!this.state.load_events){
-			return;
-		}
 
 		var form_objects = null;
 		form_objects = await this._pull_forms();
@@ -234,8 +230,13 @@ export default class Board extends React.Component{
                     <EventsBoard id={this.state.id} events={this.state.filteredEvents} event_kind={this.state.event_kind}/>
                 </View>
 				<View style={styles.bottomContent}>
-					<TouchableHighlight onPress={() => {this.setState({load_events: true})}} underlayColor={'transparent'}>
-						<Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
+					<TouchableHighlight onPress={() => {
+															setTimeout(() => {this.setState({refresh_enabled: true})}, TIMEOUT_INTERVAL);
+															this.setState({load_events: true, refresh_enabled: false});
+														}}
+										underlayColor={'transparent'}
+										disabled={!this.state.refresh_enabled} >
+						<Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: this.state.refresh_enabled ? '#77c8ce' : 'gray'}}>
 						<FontAwesome name="refresh" size={24} />
 						</Text>
 					</TouchableHighlight>
@@ -388,52 +389,54 @@ export default class Board extends React.Component{
         return events
 	}
 	
-	filter_events = async (events) => {
+	filter_events = (events) => {
 		console.log('=========== filter_events ============');
 		var filteredEvents = [];
-		if (this.state.filterSettings.active){
-			var category = this.state.filterSettings.category;
-			var sub_category = this.state.filterSettings.sub_category;
-			var requestedDate = this.state.filterSettings.date == null ? null : this.state.filterSettings.date.getTime();		
-			if(category != null && category != 'Default'){
-				console.log('filtering category: ' + category);
+
+		if (!this.state.filterSettings.active){
+			return events;
+		}
+		var category = this.state.filterSettings.category;
+		var sub_category = this.state.filterSettings.sub_category;
+		var requestedDate = this.state.filterSettings.date == null ? null : this.state.filterSettings.date.getTime();		
+
+		if(category != null && category != 'Default'){
+			console.log('filtering category: ' + category);
+			events.forEach(function(event){			
+				if(event.category == category && (requestedDate == null || requestedDate > event.raw_date)){
+					filteredEvents.push(event);
+				}
+			});
+		}
+		if(sub_category != null && sub_category != 'Default'){
+			console.log('filtering sub-category: ' + sub_category);
+			var temp_filteredEvents = filteredEvents.slice();
+			temp_filteredEvents.forEach(function(event){			
+				if (event.sub_category != sub_category){
+					var index = 0;
+					for(index in filteredEvents){
+						if(filteredEvents[index].id == event.id){
+							break;
+						}
+					}
+					filteredEvents.splice(index, 1);
+				}
+			});
+		}
+		if (category == null || category == 'Default'){
+			if (requestedDate == null) {
+				return events;
+			}
+			else {
 				events.forEach(function(event){			
-					if(event.category == category && (requestedDate == null || requestedDate > event.raw_date)){
+					if(requestedDate > event.raw_date){
 						filteredEvents.push(event);
 					}
 				});
 			}
-			if(sub_category != null && sub_category != 'Default'){
-				console.log('filtering sub-category: ' + sub_category);
-				var temp_filteredEvents = filteredEvents.slice();
-				temp_filteredEvents.forEach(function(event){			
-					if (event.sub_category != sub_category){
-						var index = 0;
-						for(index in filteredEvents){
-							if(filteredEvents[index].id == event.id){
-								break;
-							}
-						}
-						filteredEvents.splice(index, 1);
-					}
-				});
-			}
-			if (category == null || category == 'Default'){
-				if (requestedDate == null) {
-					return events;
-				}
-				else {
-					events.forEach(function(event){			
-						if(requestedDate > event.raw_date){
-							filteredEvents.push(event);
-						}
-					});
-				}
-			}	
-			return filteredEvents;
+		}	
+		return filteredEvents;
 		}
-		return events;		
-	}
 
 	_pull_forms = async () => {
         let tries = 0;

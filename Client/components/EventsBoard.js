@@ -101,7 +101,6 @@ export default class EventsBoard extends React.Component{
             if(!this.state.events || this.state.events.length == 0){
                 return null
             }
-            console.log(this.state.events)
             event_board = 
                 <View style={{flex:1, width:'90%', borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
                     <FlatList   data={this.state.events}
@@ -117,7 +116,7 @@ export default class EventsBoard extends React.Component{
                                     }}
                                 keyExtractor={item=>String(item.id)}
                                 showsVerticalScrollIndicator={false}
-                                extraData={this.state.chosed_event} />
+                                extraData={{chosed_event: this.state.chosed_event}} />
                 </View>
         }
         return event_board
@@ -205,7 +204,6 @@ export default class EventsBoard extends React.Component{
 
         let api = events_server_api;
         api = utils.string_format('{0}/subscribe?event_id={1}&user_id={2}', api, event_id, this.state.id);
-        console.log(api);
 
         while(!result && tries < 3){
             result = await fetch(api, {method: 'PUT'})
@@ -230,7 +228,6 @@ export default class EventsBoard extends React.Component{
                                return false;
                            })
         }
-        console.log(result);
         return result;
     }
 
@@ -239,9 +236,12 @@ export default class EventsBoard extends React.Component{
         var events = [];
         this.state.events.forEach(event => {
             if(event.id == event_id){
-                console.log('The subscribed event:');
-                console.log(event);
-                event.subscribed_users_ids.push(this.state.id);
+                subscribed_ids = event.subscribed_users_ids;
+                if(subscribed_ids == undefined)
+                    subscribed_ids = [];
+                subscribed_ids.push(this.state.id);
+
+                event.subscribed_users_ids = subscribed_ids;
             }
             events.push(event);
         })
@@ -254,6 +254,5 @@ export default class EventsBoard extends React.Component{
                 load_events: prev_state.load_events,
             }
         })
-        console.log(this.state.events);
     }
 }

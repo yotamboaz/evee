@@ -57,7 +57,6 @@ export default class ManageEvents extends React.Component{
                                return null
                            })
         }
-        console.log(events);
         return events;
     }
 
