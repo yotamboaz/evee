@@ -548,14 +548,16 @@ export default class Board extends React.Component{
 	display_owned_events = async () => {
 		nav.navigate('ManageEventsContainer', {
 			id: this.state.id,
-			kind: 'owned_events'
+			kind: 'owned_events',
+			unsubscribe_cb: null
 		});
 	}
 
 	display_subscribed_events = async () => {
 		nav.navigate('ManageEventsContainer', {
 			id: this.state.id,
-			kind: 'subscribed_events'
+			kind: 'subscribed_events',
+			unsubscribe_cb: this.unsubscribe_from_event
 		});
 	}
 
@@ -600,5 +602,24 @@ export default class Board extends React.Component{
 				}				
             }
         })
-    }
+	}
+	
+	unsubscribe_from_event = (event_id) => {
+		var events = this.state.events.forEach(event => {
+			if(event.id != event_id)
+				return event;
+			
+			event_subscribers = event.subscribed_users_ids
+			for(idx in event_subscribers){
+				id = event_subscribers[idx];
+				if(id == this.state.id){
+					event_subscribers.splice(idx, 1);
+					break;
+				}
+			}
+			event.subscribed_users_ids = event_subscribers;
+			return event;
+		})
+		this.setState({events: events});
+	}
 }

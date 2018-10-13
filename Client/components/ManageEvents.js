@@ -19,12 +19,13 @@ export default class ManageEvents extends React.Component{
             // simillar to EventsBoard.
             // decide between 'subscribed_events' and 'owned_events'
             kind: props.kind,
-
+            unsubscribe_cb: props.unsubscribe_cb,
             load_events: true
         }
         
 		console.log(this.state.id);
-		console.log(this.state.kind);
+        console.log(this.state.kind);
+        console.log(this.state.unsubscribe_cb)
     }
 
     fetch_events = async () => {
@@ -143,6 +144,9 @@ export default class ManageEvents extends React.Component{
             var new_events = [];
             this.state.events.forEach(event_item => {
                 if(event_item.id == event_id){
+                    if(this.state.unsubscribe_cb != null){
+                        this.state.unsubscribe_cb(event_id);
+                    }
                     return;
                 }
                 

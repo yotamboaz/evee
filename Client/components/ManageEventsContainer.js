@@ -21,9 +21,11 @@ export default class ManageEventsContainer extends React.Component{
         const { navigation } = this.props;
         const userID = navigation.getParam('id', '0');
         const _kind = navigation.getParam('kind', '');
+        const unsubscribe_cb = navigation.getParam('unsubscribe_cb', null);
         this.state = {
             id: userID,
-            kind: _kind
+            kind: _kind,
+            unsubscribe_cb: unsubscribe_cb
 		}
     }
 
@@ -31,7 +33,7 @@ export default class ManageEventsContainer extends React.Component{
 		return(
 			<View style={styles.wholeApp}>
                 <View style={{flex: 0.9}}>
-                    <ManageEvents id={this.state.id} kind={this.state.kind}/>
+                    <ManageEvents id={this.state.id} kind={this.state.kind} unsubscribe_cb={this.state.unsubscribe_cb}/>
                 </View>
                 <View style={{flex: 0.1}}>                
                     <TouchableHighlight onPress={() => nav.navigate("Board")} underlayColor={'transparent'}>
