@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { View, Alert, Text } from 'react-native';
+import { View, Alert, Text, Image } from 'react-native';
 
 import Loading from '../Loading';
 import * as utils from '../../utils/utils';
@@ -66,6 +66,9 @@ export default class Login extends Component{
                             color='green'
                             style={{height:'20%', padding: 10, margin: 10}}                            
                         /> */}
+                        <Text style={{marginTop: 15, marginBottom: 10, fontSize: 24, textAlign: 'center', color: '#E2FCFF'}}>
+                            <Image style={{width: 280, height: 210}} source={require('../../logo.png')} />
+                        </Text>
                     </View>
                 </View>
             </View>
