@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Alert, TouchableHighlight, BackHandler, ToastAndroid} from 'react-native';
+import { View, Text, Alert, Image, TouchableHighlight, BackHandler, ToastAndroid} from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 
 import styles from '../utils/styles';
@@ -7,6 +7,8 @@ import EventsBoard from './EventsBoard';
 import Categories from './Categories';
 import AppTitle from './AppTitle';
 import ClosedEvents from './ClosedEvents';
+import DatePicker from './DatePicker';
+import TopMenu from './TopMenu';
 
 import { events as events_server_api } from '../utils/Server_api';
 import { formats as formats_api, events as events_api } from '../utils/Server_api';
@@ -40,14 +42,13 @@ export default class Board extends React.Component{
 			// the public events
 			events: [],
 			filteredEvents: [],
-			filterSettings: {active: false, category: 'Default', sub_category: 'Default'},
+			filterSettings: {active: false, category: 'Default', sub_category: 'Default', show_date: true, date: null},
 			//////
             form_objects: [],
             categories: {},
             selected_category: 'Default',
             selected_sub_category: 'Default',
             location: {},
-            current_form: {category: null, sub_category: null},
             field_values: {},
             invalid_fields: {},
             registered_fields: ['Event Name'],
@@ -81,7 +82,7 @@ export default class Board extends React.Component{
 		this.setState(prev_state => {
 			selected_category = reset_categories ? null : this.state.selected_category;
 			selected_sub_category = reset_categories ? null : this.state.selected_sub_category;
-			filterSettings = reset_categories ? {category: null, sub_category: null, active: false} : this.state.filterSettings;
+			filterSettings = reset_categories ? {category: 'Default', sub_category: 'Default', active: false, show_date: true, date: null} : this.state.filterSettings;
 
 			return {
 				id: prev_state.id,
@@ -224,38 +225,7 @@ export default class Board extends React.Component{
         return(
             <View style={styles.wholeApp}>
 				<AppTitle/>
-				<View style={styles.topContent}>
-					<View style={{flex: 0.1, padding: 8}}>
-						<TouchableHighlight onPress={() => this.menuButton()} underlayColor={'transparent'}>
-							<Text style={{opacity: this.state.menuOpacity, margin: 5, fontSize: 24, textAlign: 'left', color: '#77c8ce'}}>
-							<FontAwesome name="user" size={24} />
-							</Text>
-						</TouchableHighlight>
-					</View>
-					<View style={{flex: 0.4, padding: 8}}>
-						<TouchableHighlight onPress={() => this.boardButton()} underlayColor={'transparent'}
-						style={{opacity: this.state.boardButtonOpacity, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
-							<Text style={{margin: 5, fontSize: 16, textAlign: 'center', color: '#77c8ce'}}>
-							Events List
-							</Text>
-						</TouchableHighlight>
-					</View>
-					<View style={{flex: 0.4, padding: 8}}>
-						<TouchableHighlight onPress={() => this.aroundMeButton()} underlayColor={'transparent'}
-						style={{opacity: this.state.aroundMeButtonOpacity, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
-							<Text style={{margin: 5, fontSize: 16, textAlign: 'center', color: '#77c8ce'}}>
-							Events Map
-							</Text>
-						</TouchableHighlight>
-					</View>
-					<View style={{flex: 0.1, padding: 8}}>
-						<TouchableHighlight onPress={() => this.filtersButton()} underlayColor={'transparent'}>
-							<Text style={{opacity: this.state.filterOpacity, margin: 5, fontSize: 24, textAlign: 'left', color: '#77c8ce'}}>
-							<FontAwesome name="filter" size={24} />
-							</Text>
-						</TouchableHighlight>
-					</View>
-				</View>
+				<TopMenu board={this} />
                 <View style={styles.mainContent}>
 					{/* Closed events */}
 					{this.state.closed_events.length > 0 ? <ClosedEvents events={this.state.closed_events}
@@ -284,39 +254,8 @@ export default class Board extends React.Component{
 		return(
 			<View style={styles.wholeApp}>
 				<AppTitle/>
-				<View style={styles.topContent}>
-					<View style={{flex: 0.1, padding: 8}}>
-						<TouchableHighlight onPress={() => this.menuButton()} underlayColor={'transparent'}>
-							<Text style={{opacity: this.state.menuOpacity, margin: 5, fontSize: 24, textAlign: 'left', color: '#77c8ce'}}>
-							<FontAwesome name="user" size={24} />
-							</Text>
-						</TouchableHighlight>
-					</View>
-					<View style={{flex: 0.4, padding: 8}}>
-						<TouchableHighlight onPress={() => this.boardButton()} underlayColor={'transparent'}
-						style={{opacity: this.state.boardButtonOpacity, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
-							<Text style={{margin: 5, fontSize: 16, textAlign: 'center', color: '#77c8ce'}}>
-							Events List
-							</Text>
-						</TouchableHighlight>
-					</View>
-					<View style={{flex: 0.4, padding: 8}}>
-						<TouchableHighlight onPress={() => this.aroundMeButton()} underlayColor={'transparent'}
-						style={{opacity: this.state.aroundMeButtonOpacity, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
-							<Text style={{margin: 5, fontSize: 16, textAlign: 'center', color: '#77c8ce'}}>
-							Events Map
-							</Text>
-						</TouchableHighlight>
-					</View>
-					<View style={{flex: 0.1, padding: 8}}>
-						<TouchableHighlight onPress={() => this.filtersButton()} underlayColor={'transparent'}>
-							<Text style={{opacity: this.state.filterOpacity, margin: 5, fontSize: 24, textAlign: 'left', color: '#77c8ce'}}>
-							<FontAwesome name="filter" size={24} />
-							</Text>
-						</TouchableHighlight>
-					</View>
-				</View>
-                <View style={{ flex: 0.8 }}>
+				<TopMenu board={this} />
+                <View style={{ flex: 0.6 }}>
 					<Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
 						{this.state.username}
 					</Text>
@@ -339,6 +278,11 @@ export default class Board extends React.Component{
 						style={styles.userMenuLogoutButton}						
 					/>
 				</View>
+				<View style={{ flex: 0.2 }}>
+					<Text style={{marginTop: 15, marginBottom: 10, fontSize: 24, textAlign: 'center', color: '#E2FCFF'}}>
+						<Image style={{width: 280, height: 210}} source={require('../logo.png')} />
+					</Text>
+				</View>
 				<View style={{ flex: 0.1 }}>
 					<Text style={{margin: 5, fontSize: 10, textAlign: 'center', color: '#77c8ce'}}>
 						All rights reserved to Yotam Boaz, Gal Rotenberg & Roy Koren, 2018
@@ -352,46 +296,38 @@ export default class Board extends React.Component{
 		return(
 			<View style={styles.wholeApp}>
 				<AppTitle/>
-				<View style={styles.topContent}>
-					<View style={{flex: 0.1, padding: 8}}>
-						<TouchableHighlight onPress={() => this.menuButton()} underlayColor={'transparent'}>
-							<Text style={{opacity: this.state.menuOpacity, margin: 5, fontSize: 24, textAlign: 'left', color: '#77c8ce'}}>
-							<FontAwesome name="user" size={24} />
-							</Text>
-						</TouchableHighlight>
+				<TopMenu board={this} />
+				<View style={{flex:0.6, margin:10, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
+					<View style={{margin: 5}}>
+						<Categories
+							selected_category={this.state.selected_category}
+							selected_sub_category={this.state.selected_sub_category}
+							categories={this.state.categories}
+							on_category_changed={this.on_category_changed}
+							on_sub_category_changed={this.on_sub_category_changed}
+						/>
 					</View>
-					<View style={{flex: 0.4, padding: 8}}>
-						<TouchableHighlight onPress={() => this.boardButton()} underlayColor={'transparent'}
-						style={{opacity: this.state.boardButtonOpacity, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
-							<Text style={{margin: 5, fontSize: 16, textAlign: 'center', color: '#77c8ce'}}>
-							Events List
-							</Text>
-						</TouchableHighlight>
+					<View style={{flexDirection: 'row', margin: 5}}>
+						{
+							this.state.filterSettings.date!=null &&
+								(<View style={{flexDirection: 'row'}}>
+								<Text style={{textAlign: 'left', fontSize: 12, color: '#969696'}}>
+									{utils.string_format(': ')}
+									{this.state.filterSettings.date.toDateString()}
+									{utils.string_format(' ')}									
+									{utils.string_format('{0}:{1}', this.state.filterSettings.date.getHours(), this.state.filterSettings.date.getMinutes())}
+								</Text>
+								</View>)
+						}
+						<Text style={{textAlign: 'left', fontSize: 12, color: '#969696'}}>Show events until</Text>						
 					</View>
-					<View style={{flex: 0.4, padding: 8}}>
-						<TouchableHighlight onPress={() => this.aroundMeButton()} underlayColor={'transparent'}
-						style={{opacity: this.state.aroundMeButtonOpacity, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
-							<Text style={{margin: 5, fontSize: 16, textAlign: 'center', color: '#77c8ce'}}>
-							Events Map
-							</Text>
-						</TouchableHighlight>
+					<View style={{margin: 5}}>
+						<DatePicker on_date_pick={this.on_date_pick}
+										show_date={this.state.filterSettings.show_date}
+										confirm_date={this.confirm_date}
+										cancel_date={this.cancel_date}
+						/>
 					</View>
-					<View style={{flex: 0.1, padding: 8}}>
-						<TouchableHighlight onPress={() => this.filtersButton()} underlayColor={'transparent'}>
-							<Text style={{opacity: this.state.filterOpacity, margin: 5, fontSize: 24, textAlign: 'left', color: '#77c8ce'}}>
-							<FontAwesome name="filter" size={24} />
-							</Text>
-						</TouchableHighlight>
-					</View>
-				</View>
-				<View style={{flex:0.6}}>
-					<Categories
-						selected_category={this.state.selected_category}
-						selected_sub_category={this.state.selected_sub_category}
-						categories={this.state.categories}
-						on_category_changed={this.on_category_changed}
-						on_sub_category_changed={this.on_sub_category_changed}
-					/> 
 				</View>
 				<View style={{flex:0.3}}>				
 					<TextButton 
@@ -413,7 +349,7 @@ export default class Board extends React.Component{
 
 	activateFilters(_this) {
 		_this.setState({
-			filterSettings: {active: true, category: _this.state.selected_category, sub_category: _this.state.selected_sub_category},
+			filterSettings: {active: true, category: _this.state.selected_category, sub_category: _this.state.selected_sub_category, show_date: true, date: _this.state.filterSettings.date},
 		});
 		_this.boardButton();
 	}
@@ -421,7 +357,7 @@ export default class Board extends React.Component{
 	removeFilters(_this) {
 		_this.setState({
 			filteredEvents: _this.state.events,
-			filterSettings: {active: false, category: 'Default', sub_category: 'Default'},
+			filterSettings: {active: false, category: 'Default', sub_category: 'Default', show_date: true, date: null},
 			// load_events: true		
 		})
 		//Alert.alert('Success', 'Filter was removed!');		
@@ -460,12 +396,14 @@ export default class Board extends React.Component{
 		if (this.state.filterSettings.active){
 			var category = this.state.filterSettings.category;
 			var sub_category = this.state.filterSettings.sub_category;
+			var requestedDate = this.state.filterSettings.date == null ? null : this.state.filterSettings.date.getTime();
 			console.log('category::::'+category);
-			console.log('sub_category::::'+sub_category);	
+			console.log('sub_category::::'+sub_category);
+			console.log('req_date::::'+requestedDate);			
 			if(category != null && category != 'Default'){
 				console.log('filtering category: ' + category);
 				events.forEach(function(event){			
-					if(event.category == category){
+					if(event.category == category && (requestedDate == null || requestedDate > event.raw_date)){
 						filteredEvents.push(event);
 					}
 				});
@@ -484,7 +422,19 @@ export default class Board extends React.Component{
 						filteredEvents.splice(index, 1);
 					}
 				});
-			}			
+			}
+			if (category == null || category == 'Default'){
+				if (requestedDate == null) {
+					return events;
+				}
+				else {
+					events.forEach(function(event){			
+						if(requestedDate > event.raw_date){
+							filteredEvents.push(event);
+						}
+					});
+				}
+			}	
 			return filteredEvents;
 		}
 		return events;		
@@ -610,4 +560,47 @@ export default class Board extends React.Component{
 			kind: 'subscribed_events'
 		});
 	}
+
+	on_date_pick = () => {
+        this.setState(prev_state => {
+            let show_date = this.state.filterSettings.show_date;
+            return {
+				filterSettings: {
+					active: this.state.filterSettings.active,
+					category: this.state.filterSettings.category,
+					sub_category: this.state.filterSettings.sub_category,
+					show_date: {show_date},
+					date: this.state.filterSettings.date
+				}
+            }
+        })
+	}
+	
+	confirm_date = (date_value) => {
+        this.setState(prev_state => {
+            return {
+				filterSettings: {
+					active: this.state.filterSettings.active,
+					category: this.state.filterSettings.category,
+					sub_category: this.state.filterSettings.sub_category,
+					show_date: false,
+					date: date_value
+				}
+            }
+        })
+	}
+	
+	cancel_date = () => {
+        this.setState(prev_state => {
+            return {
+				filterSettings: {
+					active: this.state.filterSettings.active,
+					category: this.state.filterSettings.category,
+					sub_category: this.state.filterSettings.sub_category,
+					show_date: false,
+					date: this.state.filterSettings.date
+				}				
+            }
+        })
+    }
 }

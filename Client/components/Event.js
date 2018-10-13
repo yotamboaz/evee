@@ -65,7 +65,7 @@ export default class Event extends React.Component{
                                 ref={marker => {this.marker = marker}}> 
                                 <MapView.Callout tooltip={true}
                                                  onPress={this.hide_event_data}>
-                                    <View style={{backgroundColor: 'white'}}>
+                                    <View style={{backgroundColor: '#E2FCFF', borderRadius:10, borderWidth: 1, borderColor: 'black'}}>
                                         {event_details}
                                         {Platform.OS == 'ios' && <Button onPress={this.register_to_event} title='register' disabled={!able_to_register} />}
                                     </View>
@@ -84,11 +84,11 @@ export default class Event extends React.Component{
 					/>
                     {this.state.show_data ? event_details : null}
                     {this.state.show_data ? <TextButton  title='register'
+                                                         style={{margin:10, backgroundColor: '#4d8c91'}}
                                                          onPress={this.register_to_event}
                                                          disabled={!able_to_register}
                                                          key='register_button'
-                                                         titleColor='black'
-                                                         color='azure' /> : null}
+                                                         titleColor='black' /> : null}
                 </View>
             )
         }

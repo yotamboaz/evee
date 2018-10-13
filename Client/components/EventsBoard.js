@@ -116,7 +116,6 @@ export default class EventsBoard extends React.Component{
                                                     register_to_event_cb={this.register_to_event} />
                                     }}
                                 keyExtractor={item=>String(item.id)}
-                                ItemSeparatorComponent={utils.render_separator}
                                 showsVerticalScrollIndicator={false}
                                 extraData={this.state.chosed_event} />
                 </View>

@@ -89,19 +89,24 @@ export default class ManageEvents extends React.Component{
     }
 
     render(){
+        page_type = this.state.kind == 'owned_events' ? "My Events" : "Subscribed Events";        
         return (
             <View style={{alignContent: 'center', flex:1,}}>
-            <AppTitle/>
-                <FlatList data={this.state.events}
-                          ItemSeparatorComponent={utils.render_separator}
-                          showsVerticalScrollIndicator={false}
-                          keyExtractor={item=>String(item.id)}
-                          renderItem={({item}) => {
-                              return <ManagedEvent kind={this.state.kind}
-                                                   remove_cb={this.remove_cb_warning}
-                                                   event={item}
-                                                   extraData={this.state.events} />
-                          }} />
+                <AppTitle/>
+                <View style={{margin: 5}}>
+                    <Text style={{margin: 5, fontSize: 24, textAlign: 'center', color: '#77c8ce'}}>
+                        {page_type}
+                    </Text>                     
+                </View>
+                    <FlatList data={this.state.events}
+                            showsVerticalScrollIndicator={false}
+                            keyExtractor={item=>String(item.id)}
+                            renderItem={({item}) => {
+                                return <ManagedEvent kind={this.state.kind}
+                                                    remove_cb={this.remove_cb_warning}
+                                                    event={item}
+                                                    extraData={this.state.events} />
+                            }} />
             </View>
         )
     }

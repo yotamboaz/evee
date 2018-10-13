@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, FlatList, Button, Text, Platform, Alert } from 'react-native';
+import { View, ScrollView, FlatList, Button, Text, Platform, Alert } from 'react-native';
 
 import * as utils from '../utils/utils';
 
@@ -12,9 +12,13 @@ const ManagedEvent = (props) => {
     button_title = button_kind_is_register ? 'unsubscribe' : 'cancel event';
 
     return (
-        <ScrollView>
-            {event_details}
-            <Button title={button_title} color='#4d8c91' onPress={()=>props.remove_cb(props.event.name, props.event.id)} />
+        <ScrollView style={{margin:10, borderRadius:10, borderWidth: 1, borderColor: '#77c8ce'}}>
+            <View style={{margin: 10}}>
+                {event_details}                            
+            </View>
+            <View style={{margin: 10}}>
+                <Button title={button_title} color='#4d8c91' onPress={()=>props.remove_cb(props.event.name, props.event.id)} />                
+            </View>
         </ScrollView>
     )
 }

@@ -157,10 +157,16 @@ export default class UserForm extends React.Component {
                                     show_date={this.state.show_date}
                                     confirm_date={this.confirm_date}
                                     cancel_date={this.cancel_date} />
-                        {this.state.date!=null && (<View>
-                                                <Text>{this.state.date.toDateString()}</Text>
-                                                <Text>{utils.string_format('{0}:{1}', this.state.date.getHours(), this.state.date.getMinutes())}</Text>
-                                                </View>)}
+                        {
+							this.state.date!=null &&
+								(<View style={{flexDirection: 'row', marginTop: 10}}>
+								<Text style={{textAlign: 'center', fontSize: 14, color: '#969696'}}>
+									{this.state.date.toDateString()}
+									{utils.string_format(' ')}									
+									{utils.string_format('{0}:{1}', this.state.date.getHours(), this.state.date.getMinutes())}
+								</Text>
+								</View>)
+						}
 
                         <View style={{marginTop:10}}><Button title='Submit' color='#4d8c91' onPress={this.submit_form} /></View>
                     </ScrollView>
